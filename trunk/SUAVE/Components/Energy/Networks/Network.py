@@ -5,6 +5,7 @@
 # Modified: Feb 2016, T. MacDonald
 #           May 2020, E. Botero
 #           Jul 2021, E. Botero
+#           Nov 2021, S. Claridge
 
 
 # ----------------------------------------------------------------------
@@ -129,9 +130,12 @@ class Container(Physical_Component.Container):
         results.thrust_force_vector = 0.*ones_row(3)
         results.vehicle_mass_rate   = 0.*ones_row(1)
 
+        results.vehicle_alternative_rate =  0.*ones_row(1) #fuel rate for additional fuel types, eg cryogenic fuel
+        results.vehicle_fuel_rate        =  0.*ones_row(1)
+
         for net in self.values():
             results_p = net.evaluate_thrust(state) 
-            
+
             for key in results.keys():
                 results[key] += results_p[key]
 

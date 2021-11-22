@@ -6,6 +6,7 @@
 #           Mar 2020, M. Clarke 
 #           Apr 2021, M. Clarke
 #           Jun 2021, A. Blaufox
+#           Nov 2021, S. Claridge
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -147,7 +148,9 @@ class Aerodynamics(Basic):
         self.energies.propulsion_power     = ones_1col * 0
         
         # weights conditions
-        self.weights.vehicle_mass_rate     = ones_1col * 0
+        self.weights.vehicle_mass_rate            = ones_1col * 0
+        self.weights.vehicle_fuel_rate            = ones_1col * 0
+        self.weights.vehicle_alternative_rate     = ones_1col * 0
         
         # noise conditions
         self.noise                             = Conditions()

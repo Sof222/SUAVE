@@ -76,6 +76,87 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
     return
 
 # ------------------------------------------------------------------
+#   Plot Fuel Use
+# ------------------------------------------------------------------
+
+def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Velocities", file_type = ".png"):
+    """This plots aircraft fuel usage
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+
+
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	"""
+    axis_font = {'size':'14'}  
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(10, 8) 
+
+    start = 0
+    total = 0
+    prev_seg_fuel = 0
+    prev_seg_extra_fuel= 0
+
+    for i in range(len(results.segments)):
+        segment  = results.segments[i]
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
+        fuel     = segment.conditions.weights.fuel_mass[:,0]
+        alt_fuel = segment.conditions.weights.extra_mass[:,0]
+
+
+        print(segment.conditions.weights)
+
+        print("fuel = " , fuel )
+        print("time = ", time)
+        print("fuel[-1 ] = ", fuel[-1])
+        print("total = ", total)
+
+
+        axes = plt.subplot(1,1,1)
+
+        if start == 0:
+            plot_fuel = np.negative(fuel)
+            plot_alt_fuel = np.negative(alt_fuel)
+            axes.plot( time , plot_fuel , 'ro-' , label = 'fuel')
+            axes.plot( time , plot_alt_fuel , 'bo-', label = 'alternative fuel' )
+            axes.plot( time , np.add(plot_fuel, plot_alt_fuel), 'go-', label = 'total fuel' )
+
+            axes.legend(loc='center right')   
+            start += 1
+
+
+        else:
+            prev_seg_fuel += results.segments[i-1].conditions.weights.fuel_mass[-1]
+            prev_seg_extra_fuel += results.segments[i-1].conditions.weights.extra_mass[-1]
+
+            current_fuel = np.add(fuel, prev_seg_fuel)
+            current_alt_fuel = np.add(alt_fuel, prev_seg_extra_fuel)
+
+            axes.plot( time , np.negative(current_fuel)  , 'ro-' )
+            axes.plot( time , np.negative(current_alt_fuel ), 'bo-')
+            axes.plot( time , np.negative(current_fuel + current_alt_fuel), 'go-')
+
+    axes.set_ylabel('Fuel (kg)',axis_font)
+    set_axes(axes)
+
+
+    plt.tight_layout()       
+    if save_figure:
+        plt.savefig(save_filename + file_type)  
+        
+    return
+
+
+
+# ------------------------------------------------------------------
 #   Aircraft Velocities
 # ------------------------------------------------------------------
 ## @ingroup Plots
@@ -164,12 +245,12 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
         time  = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         DL    = results.segments[i].conditions.propulsion.disc_loading
         PL    = results.segments[i].conditions.propulsion.power_loading   
-   
+
         axes = plt.subplot(2,1,1)
         axes.plot(time, DL, line_color)
         axes.set_ylabel('lift disc power N/m^2',axis_font)
         set_axes(axes)      
-  
+
         axes = plt.subplot(2,1,2)
         axes.plot(time, PL, line_color )       
         axes.set_xlabel('Time (mins)',axis_font)
@@ -262,10 +343,10 @@ def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, sa
 
     Inputs:
     results.segments.condtions.frames
-         body.thrust_force_vector 
-         wind.lift_force_vector        
-         wind.drag_force_vector   
-         
+        body.thrust_force_vector 
+        wind.lift_force_vector        
+        wind.drag_force_vector   
+        
     Outputs: 
     Plots
 
@@ -326,10 +407,10 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
 
     Inputs:
     results.segments.condtions.aerodynamics.drag_breakdown
-          parasite.total 
-          induced.total 
-          compressible.total    
-          miscellaneous.total     
+        parasite.total 
+        induced.total 
+        compressible.total    
+        miscellaneous.total     
     
     Outputs: 
     Plots
@@ -350,7 +431,7 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
         cdc = drag_breakdown.compressible.total[:,0]
         cdm = drag_breakdown.miscellaneous.total[:,0]
         cd  = drag_breakdown.total[:,0]
-                  
+                
         if i == 0: 
             axes.plot( time , cdp , 'ko-', label='CD parasite' )
             axes.plot( time , cdi , 'bo-', label='CD induced' )
@@ -391,11 +472,11 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
 
     Inputs:
     results.segments.conditions.propulsion
-         battery_power_draw 
-         battery_energy    
-         battery_voltage_under_load    
-         battery_voltage_open_circuit    
-         current        
+        battery_power_draw 
+        battery_energy    
+        battery_voltage_under_load    
+        battery_voltage_open_circuit    
+        current        
         
     Outputs: 
     Plots
@@ -476,7 +557,7 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', line_color2 = 'rs-
         if y_lo>0: y_lo = 0
         y_hi       = y_hi*1.1
         ax.set_ylim(y_lo,y_hi)    
-     
+    
         
     plt.tight_layout() 
     if save_figure:
@@ -499,11 +580,11 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
 
     Inputs:
     results.segments.conditions.propulsion
-         battery_power_draw 
-         battery_energy    
-         voltage_under_load    
-         voltage_open_circuit    
-         current        
+        battery_power_draw 
+        battery_energy    
+        voltage_under_load    
+        voltage_open_circuit    
+        current        
         
     Outputs: 
     Plots
@@ -574,14 +655,14 @@ def plot_battery_cell_conditions(results, line_color = 'bo-',line_color2 = 'rs--
         else:
             axes.plot(time, cell_C_instant, line_color)
             axes.plot(time, cell_C_nominal, line_color2)
-  
+
         
         axes = plt.subplot(3,3,6)
         axes.plot(time, cell_charge, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Current (A)',axis_font)  
         set_axes(axes)         
-         
+        
         axes = plt.subplot(3,3,7)
         axes.plot(time, cell_charge, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
@@ -655,7 +736,7 @@ def plot_battery_degradation(results, line_color = 'bo-',line_color2 = 'rs--', s
         capacity_fade[i]       = results.segments[i].conditions.propulsion.battery_capacity_fade_factor 
         resistance_growth[i]   = results.segments[i].conditions.propulsion.battery_resistance_growth_factor 
         charge_throughput[i]   =  results.segments[i].conditions.propulsion.battery_cell_charge_throughput[-1,0]  
-         
+        
     axes = plt.subplot(2,2,1)
     axes.plot(charge_throughput, capacity_fade, line_color)
     axes.plot(charge_throughput, resistance_growth, line_color2) 
@@ -699,14 +780,14 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
 
     Inputs:
     results.segments.conditions.
-         frames 
-             body.inertial_rotations
-             inertial.position_vector 
-         freestream.velocity
-         aerodynamics.
-             lift_coefficient
-             drag_coefficient
-             angle_of_attack
+        frames 
+            body.inertial_rotations
+            inertial.position_vector 
+        freestream.velocity
+        aerodynamics.
+            lift_coefficient
+            drag_coefficient
+            angle_of_attack
         
     Outputs: 
     Plots
@@ -795,7 +876,7 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
         tm     = segment.conditions.propulsion.propeller_tip_mach[:,0]
         Cp     = segment.conditions.propulsion.propeller_power_coefficient[:,0]
         eta    = segment.conditions.propulsion.throttle[:,0]
- 
+
         axes = plt.subplot(2,3,1)
         axes.plot(time, thrust, line_color)
         axes.set_ylabel('Thrust (N)',axis_font)
@@ -861,8 +942,8 @@ def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = Fal
 
     Inputs:
     results.segments.conditions.propulsion. 
-         etap
-         etam
+        etap
+        etam
         
     Outputs: 
     Plots
@@ -913,12 +994,12 @@ def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False
 
     Inputs:
     results.segments.conditions.stability.
-       static
-           CM 
-           Cm_alpha 
-           static_margin 
-       aerodynamics.
-           angle_of_attack
+    static
+        CM 
+        Cm_alpha 
+        static_margin 
+    aerodynamics.
+        angle_of_attack
     Outputs: 
     Plots
 
@@ -940,7 +1021,7 @@ def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False
         axes.plot( time , aoa, line_color )
         axes.set_ylabel(r'$AoA$',axis_font)
         set_axes(axes)   
-         
+        
         axes = plt.subplot(2,2,2)
         axes.plot( time , cm, line_color )
         axes.set_ylabel(r'$C_M$',axis_font)
@@ -1037,12 +1118,12 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
 
     Inputs:
     results.segments.conditions.propulsion
-         throttle 
-         lift_rotor_throttle 
-         battery_energy
-         battery_specfic_power 
-         voltage_under_load  
-         voltage_open_circuit   
+        throttle 
+        lift_rotor_throttle 
+        battery_energy
+        battery_specfic_power 
+        voltage_under_load  
+        voltage_open_circuit   
         
     Outputs: 
     Plots
@@ -1105,7 +1186,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
     if save_figure:
         plt.savefig("Lift_Cruise_Battery_Pack_Conditions" + file_type)
     
-   
+
     # ------------------------------------------------------------------
     #   Propulsion Conditions
     # ------------------------------------------------------------------
@@ -1287,7 +1368,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-',line_color2 = 'r^-', sa
     plt.tight_layout()    
     if save_figure:
         plt.savefig("Cruise_Propulsor" + file_type)
-       
+    
     # ------------------------------------------------------------------
     #   Propulsion Conditions
     # ------------------------------------------------------------------
@@ -1336,10 +1417,10 @@ def plot_surface_pressure_contours(results,vehicle, save_figure = False, save_fi
     results.segments.aerodynamics.
         pressure_coefficient
     vehicle.vortex_distribution.
-       n_cw
-       n_sw
-       n_w
-       
+    n_cw
+    n_sw
+    n_w
+    
     Outputs: 
     Plots
 
@@ -1428,9 +1509,9 @@ def plot_lift_distribution(results,vehicle, save_figure = False, save_filename =
     results.segments.aerodynamics.
         inviscid_wings_sectional_lift
     vehicle.vortex_distribution.
-       n_sw
-       n_w
-       
+    n_sw
+    n_w
+    
     Outputs: 
     Plots
 
@@ -1465,7 +1546,7 @@ def plot_lift_distribution(results,vehicle, save_figure = False, save_filename =
         seg_idx +=1
         
     return      
- 
+
 # ------------------------------------------------------------------
 #   VLM Video 
 # ------------------------------------------------------------------
@@ -1481,20 +1562,20 @@ def create_video_frames(results,vehicle, save_figure = True ,flight_profile = Tr
 
     Inputs:
     results.segments.
-       aerodynamics.         
-          lift_coefficient 	
-          drag_coefficient 	
-       conditions.
-           freestream.altitude 
-           weights.total_mass 
-                   
+    aerodynamics.         
+        lift_coefficient 	
+        drag_coefficient 	
+    conditions.
+        freestream.altitude 
+        weights.total_mass 
+                
     vehicle.vortex_distribution.
-       n_cp
-       n_cw 
-       n_sw 
-       n_w
-       n_fus
-       
+    n_cp
+    n_cw 
+    n_sw 
+    n_w
+    n_fus
+    
     Outputs: 
     Plots
 
@@ -1679,7 +1760,7 @@ def plot_ground_noise_levels(results, line_color = 'bo-', save_figure = False, s
     fig          = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
     axes        = fig.add_subplot(1,1,1) 
-     
+    
     SPL = np.zeros((dim_segs,dim_ctrl_pts,N_gm_x,N_gm_y))
     # loop through control points 
     for i in range(dim_segs):  
@@ -1741,7 +1822,7 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     SPL_contour_bm = np.zeros((dim_mat,dim_bm))  
     Aircraft_pos   = np.zeros((dim_mat,3)) 
     plot_data       = []
-     
+    
     for i in range(dim_segs):  
         if  results.segments[i].battery_discharge == False:
             pass
@@ -1791,7 +1872,7 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
                                 marker=dict(size=6,color='black',opacity=0.8),
                                 line=dict(color='black',width=2))    
     plot_data.append(aircraft_trajectory)
-     
+    
     # Define Colorbar Bounds 
     min_gm_SPL  = np.min(SPL_contour_gm) 
     max_gm_SPL  = np.max(SPL_contour_gm)
@@ -1878,14 +1959,14 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
     
     fig = go.Figure(data=plot_data)
     fig.update_layout(
-             title_text= 'Flight_Profile_' + save_filename, 
-             title_x = 0.5,
-             width   = 750,
-             height  = 750,
-             font_family = "Times New Roman",
-             font_size=18,
-             scene_zaxis_range=[min_alt,max_alt], 
-             coloraxis=dict(colorscale='Jet',
+            title_text= 'Flight_Profile_' + save_filename, 
+            title_x = 0.5,
+            width   = 750,
+            height  = 750,
+            font_family = "Times New Roman",
+            font_size=18,
+            scene_zaxis_range=[min_alt,max_alt], 
+            coloraxis=dict(colorscale='Jet',
                             colorbar_thickness=50,
                             colorbar_nticks=20,
                             colorbar_title_text = 'SPL (dBA)',
@@ -1894,7 +1975,7 @@ def plot_flight_profile_noise_contours(results, line_color = 'bo-', save_figure 
                             colorbar_ypad=60,
                             colorbar_len= 0.75,
                             **colorax(min_SPL, max_SPL)),
-             scene_camera=camera) 
+            scene_camera=camera) 
     if show_figure:
         fig.show()
     return  

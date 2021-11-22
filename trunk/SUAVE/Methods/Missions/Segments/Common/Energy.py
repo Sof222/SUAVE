@@ -6,6 +6,7 @@
 #           Jul 2017, E. Botero
 #           Aug 2021, M. Clarke
 #           Oct 2021, E. Botero
+#           Nov 2021, S. Claridge
 
 # ----------------------------------------------------------------------
 #  Initialize Battery
@@ -93,6 +94,13 @@ def update_thrust(segment):
     conditions = segment.state.conditions
     conditions.frames.body.thrust_force_vector = results.thrust_force_vector
     conditions.weights.vehicle_mass_rate       = results.vehicle_mass_rate
+
+
+    conditions.weights.vehicle_fuel_rate        = results.vehicle_fuel_rate
+    conditions.weights.vehicle_alternative_rate     = results.vehicle_alternative_rate
+
+
+
     
 def update_battery_state_of_health(segment):  
     """Updates battery age based on operating conditions, cell temperature and time of operation.

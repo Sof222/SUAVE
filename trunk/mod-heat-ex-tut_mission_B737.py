@@ -82,7 +82,7 @@ def main():
     plot_mission(results)
     
     #print_weight_breakdown(configs.base,filename = 'B737_weight_breakdown.dat')
-
+    print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
 
 
     #print(results.segments[0].conditions.weights)

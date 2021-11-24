@@ -65,9 +65,8 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         self.cryogen_proportion         = 1.0   # Proportion of cooling to be supplied by the cryogenic heat exchanger, rather than by the cryocooler
         self.leads                      = 2.0   # number of cryogenic leads supplying the rotor(s). Typically twice the number of rotors.
         self.number_of_engines          = 1.0   # number of ducted_fans, also the number of propulsion motors.
-
-        # self.motor_efficiency   = .95
-        self.nacelle_diameter           = 1.0
+        self.has_additional_fuel_type   = False
+      
         self.engine_length              = 1.0
         self.bypass_ratio               = 0.0
         self.areas                      = Data()

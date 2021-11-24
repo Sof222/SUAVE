@@ -89,7 +89,10 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
     None
 
     Inputs:
-
+    results.segments.condtions.
+        frames.inertial.time
+        weights.fuel_mass
+        weights.extra_mass
 
     Outputs: 
     Plots
@@ -112,14 +115,6 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
         alt_fuel = segment.conditions.weights.extra_mass[:,0]
 
 
-        print(segment.conditions.weights)
-
-        print("fuel = " , fuel )
-        print("time = ", time)
-        print("fuel[-1 ] = ", fuel[-1])
-        print("total = ", total)
-
-
         axes = plt.subplot(1,1,1)
 
         if start == 0:
@@ -131,7 +126,6 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
 
             axes.legend(loc='center right')   
             start += 1
-
 
         else:
             prev_seg_fuel += results.segments[i-1].conditions.weights.fuel_mass[-1]

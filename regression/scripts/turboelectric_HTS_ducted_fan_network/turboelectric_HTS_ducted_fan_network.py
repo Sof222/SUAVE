@@ -318,6 +318,19 @@ def energy_network():
     efan.cryocooler.ambient_temp       = 300.0                      # [K]
     efan.cryocooler.cooling_model      = cryocooler_model
 
+        # ------------------------------------------------------------------
+    #  Component 9 - Cryogenic Heat Exchanger, to cool the HTS Rotor
+    efan.heat_exchanger = SUAVE.Components.Energy.Cooling.Cryogenic_Heat_Exchanger()
+    efan.heat_exchanger.tag = 'heat_exchanger'
+
+    efan.heat_exchanger.cryogen                         = SUAVE.Attributes.Cryogens.Liquid_H2()
+    efan.heat_exchanger.cryogen_inlet_temperature       =     20.0                  # [K]
+    efan.heat_exchanger.cryogen_outlet_temperature      = efan.rotor.temperature    # [K]
+    efan.heat_exchanger.cryogen_pressure                = 100000.0                  # [Pa]
+    efan.heat_exchanger.cryogen_is_fuel                 =      0.0
+
+    # ------------------------------------------------------------------
+
     # Sizing Conditions. The cryocooler may have greater power requirement at low altitude as the cooling requirement may be static during the flight but the ambient temperature may change.
     cryo_temp       =  50.0     # [K]
     amb_temp        = 300.0     # [K]
@@ -344,13 +357,17 @@ def energy_network():
     # Test the model 
     # Specify the expected values
     expected = Data()
-    expected.thrust = 59023.7772426 
-    expected.mdot = 0.62414519
+    expected.thrust = 59023.77724259518
+    expected.mdot = 0.6269423647013163
     
     #error data function
     error =  Data()
     error.thrust_error = (F[0][0] -  expected.thrust)/expected.thrust
     error.mdot_error   = (mdot[0][0]-expected.mdot)/expected.mdot
+
+    print(F[0][0])
+    print(mdot[0][0])
+
 
     for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)    

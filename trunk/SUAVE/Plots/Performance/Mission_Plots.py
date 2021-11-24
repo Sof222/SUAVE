@@ -139,6 +139,7 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
             axes.plot( time , np.negative(current_fuel + current_alt_fuel), 'go-')
 
     axes.set_ylabel('Fuel (kg)',axis_font)
+    axes.set_xlabel('Time (min)',axis_font)
     set_axes(axes)
 
 

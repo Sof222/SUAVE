@@ -142,37 +142,17 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         # The cryogenic loading due to the leads is also calculated here.
         lead_power            = np.zeros_like(rotor_current)
         lead_cryo_load        = np.full_like(rotor_current, lead.unpowered_Q)
-        # Iterate through each element in the rotor_current array to build the cryo_load and lead_power array
-        for index, r_current in np.ndenumerate(rotor_current):
-            if r_current != 0.0:
-                lead_powers             = Q_offdesign(lead, r_current)
-                lead_power[index]       = lead_powers[1]
-                lead_cryo_load[index]   = lead_powers[0]
+        
+        
+        # build the cryo_load and lead_power array
+        lead_power, lead_cryo_load           = Q_offdesign(lead, rotor_current)
+
         # Multiply the lead powers by the number of leads, this is typically twice the number of motors
         lead_power          = lead_power * leads
         lead_cryo_load      = lead_cryo_load * leads
 
         # Calculate the power used by the rotor's current supply.
         ccs_power             = (lead_power+rotor_power_in)/ccs.efficiency - (lead_power+rotor_power_in)
-
-        # # -------- Option Two: Current Supply Dynamo --------------------
-
-        # # Calculate the power loss in the HTS Dynamo.
-        # dynamo_powers           = hts_dynamo.shaft_power(rotor.temperature, rotor_current, single_rotor_power)
-        # dynamo_shaft_power      = dynamo_powers[0]
-
-        # # Calculate the power used by the HTS Dynamo powertrain, i.e. the esc, motor, and gearbox.
-        # dynamo_esc_power        = dynamo_esc.power_in(dynamo_shaft_power)
-
-        # # Retreive the cryogenic load due to the dynamo
-        # dynamo_cryo_load        = dynamo_powers[1]
-
-        # # Rename dynamo power components as lead power components. As the dynamo replaces the current supply leads the power required is stored as lead_power to minimise code changes elsewhere.
-        # lead_power          = dynamo_shaft_power
-        # lead_cryo_load      = dynamo_cryo_load
-        # ccs_power           = dynamo_esc_power
-
-        # -------- End of Rotor Current Supply --------------------------
 
         # Multiply the power (electrical and cryogenic) required by the rotor components by the number of rotors, i.e. the number of propulsion motors
         all_leads_power             = number_of_engines * lead_power    
@@ -185,15 +165,10 @@ class Turboelectric_HTS_Ducted_Fan(Network):
 
         # Sum the two rotor cryogenic heat loads to give the total rotor cryogenic load.
         rotor_cryo_load             = rotor_cryo_cryostat + all_leads_cryo
-        # # This is where to surrogate in the cryogenic load for hypothetical loading analysis.
-        # try:
-        #     rotor_cryo_load = np.ones_like(rotor_cryo_load) * number_of_engines * self.cryo_load
-        #     print("Surrogate cryo_load successfully implanted.")
-        # except:
-        #     print("Testing code exists in Turboelectric_HTS_Ducted_Fan.")
-
+       
         # Calculate the power required from the cryocoolers (if present)
         cryocooler_power = 0.0
+        
         if cooling_share_cryocooler != 0.0:
             cryocooler_load         = cooling_share_cryocooler * rotor_cryo_load
             cryocooler_power        = cryocooler.energy_calc(cryocooler_load, rotor.temperature, amb_temp)

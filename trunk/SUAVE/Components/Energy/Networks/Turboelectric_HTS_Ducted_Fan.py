@@ -145,9 +145,17 @@ class Turboelectric_HTS_Ducted_Fan(Network):
    
         # build the cryo_load and lead_power array
 
-        for index, r_current in np.ndenumerate(rotor_currents):
-            if r_current != 0.0:
-                lead_cryo_load[index], lead_power[index]       = Q_offdesign(lead, r_current)
+        #for index, r_current in np.ndenumerate(rotor_currents):
+            #if r_current != 0.0:
+                #lead_cryo_load[index], lead_power[index]       = Q_offdesign(lead, r_current)
+
+        print("rotor = ", rotor_currents[:,0])
+        lead_power[rotor_currents[:,0] >0] = lead_power[rotor_currents[:,0]>0] * lead.Q_offdesign(rotor_currents[:,0])[0]
+        lead_cryo_load[rotor_currents[:,0]>0] = lead_cryo_load[rotor_currents[:,0]>0] * lead.Q_offdesign(rotor_currents[:,0])[1]
+
+        print("lp = ", lead_power)
+        print("l c l = ", lead_cryo_load)
+
                 
         # Multiply the lead powers by the number of leads, this is typically twice the number of motors
         lead_power          = lead_power * leads

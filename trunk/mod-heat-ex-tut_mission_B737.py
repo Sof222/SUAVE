@@ -43,6 +43,7 @@ from SUAVE.Methods.Cooling.Cryocooler.Cooling.cryocooler_model import cryocooler
 from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
 
 from SUAVE.Input_Output.Results import  *
+from SUAVE.Attributes.Solids.Copper import Copper
 
 from SUAVE.Methods.Missions.Segments.Common.Weights import update_weights
 
@@ -626,7 +627,7 @@ def vehicle_setup():
 
     efan.rotor.temperature              =    50.0       # [K]
     efan.rotor.skin_temp                =   300.0       # [K]       Temp of rotor outer surface is not ambient
-    efan.rotor.current                  =  1000.0       # [A]       Most of the cryoload will scale with this number if not using HTS Dynamo
+    efan.rotor.current                  =  1500.0      # [A]       Most of the cryoload will scale with this number if not using HTS Dynamo
     efan.rotor.resistance               =     0.0001    # [ohm]     20 x 100 nOhm joints should be possible (2uOhm total) so 1mOhm is an overestimation.
     efan.rotor.number_of_engines        = efan.ducted_fan.number_of_engines      
     efan.rotor.length                   =     0.573     * Units.meter       # From paper: DOI:10.2514/6.2019-4517 Would be good to estimate this from power instead.
@@ -645,6 +646,7 @@ def vehicle_setup():
     efan.lead.hot_temp                  = efan.rotor.skin_temp     # [K]
     efan.lead.current                   = efan.rotor.current       # [A]
     efan.lead.length                    = 0.3                      # [m]
+    efan.lead.material                  = Copper()
     efan.leads                          = efan.ducted_fan.number_of_engines * 2.0      # Each motor has two leads to make a complete circuit
 
     # ------------------------------------------------------------------

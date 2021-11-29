@@ -139,34 +139,14 @@ class Turboelectric_HTS_Ducted_Fan(Network):
 
         # Calculate the power loss in the rotor current supply leads.
         # The cryogenic loading due to the leads is also calculated here.
-        lead_power            = np.zeros_like(rotor_currents)
-        lead_cryo_load        = np.full_like(rotor_currents, lead.unpowered_Q)
         
-   
-        # build the cryo_load and lead_power array
+     
+        lead_power =  np.where(rotor_currents[:,0] > 0, lead.Q_offdesign(rotor_currents[:,0])[:,0], 0.0 )
+        lead_cryo_load =  np.where(rotor_currents[:,0] > 0,  lead.Q_offdesign(rotor_currents[:,0])[:,1], lead.unpowered_Q )
 
-        #for index, r_current in np.ndenumerate(rotor_currents):
-            #if r_current != 0.0:
-                #lead_cryo_load[index], lead_power[index]       = Q_offdesign(lead, r_current)
+        lead_power = np.reshape(lead_power, (16,1))
+        lead_cryo_load = np.reshape(lead_cryo_load, (16,1))
 
-        print("rotor = ", rotor_currents[:,0])
-        
-
-        #list_r, list_l = map(lead.Q_offdesign, rotor_currents[:,0] )
-        #print("list r = ", list(list_r))
-        #print("list l = ", list(list_l))
-        #lead_calc = lead.Q_offdesign(rotor_currents[:,0])
-
-        #print("lead calc = ", lead_calc)
-
-        print("lead_power = ", np.where(lead_power > 0, lead_power, lead.Q_offdesign(rotor_currents[:,0]) )[:,0])
-        print("cryo_power = ", np.where(lead_power > 0, lead_power, lead.Q_offdesign(rotor_currents[:,0]) )[:,1])
-        #lead_power[rotor_currents[:,0] > 0] = lead_power[rotor_currents[:,0] > 0] * lead_calc(rotor_currents[:,0] )[:,0]
-        #lead_cryo_load[rotor_currents[:,0] > 0] = lead_cryo_load[rotor_currents[:,0] > 0] * lead.Q_offdesign(rotor_currents[:,0])[:,1]
-        
-
-
-                
         # Multiply the lead powers by the number of leads, this is typically twice the number of motors
         lead_power          = lead_power * leads
         lead_cryo_load      = lead_cryo_load * leads

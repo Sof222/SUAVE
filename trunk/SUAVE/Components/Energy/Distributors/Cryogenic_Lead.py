@@ -126,7 +126,6 @@ class Cryogenic_Lead(Energy_Component):
         self.optimum_current        = current
         self.minimum_Q              = minimum_Q
 
-
         # find the heat conducted into the cryogenic environment if no current is flowing
         unpowered_Q             = self.Q_unpowered()
 
@@ -156,12 +155,9 @@ class Cryogenic_Lead(Energy_Component):
 
     def Q_offdesign(self, current):
         # Estimates the heat flow into the cryogenic environment when a current other than the current the lead was optimised for is flowing. Assumes the temperature difference remains constant.
-
         values = list(map( self.calc_current, current.tolist()))
-
         values = np.asarray(values)
 
-        print("return = ", values)
         return values
 
     def calc_current(self, current ):
@@ -174,16 +170,16 @@ class Cryogenic_Lead(Energy_Component):
         cs_area             = self.cross_section
         length              = self.length
         material            = self.material
-        print("design current = ", design_current)
+        #print("design current = ", design_current)
         
+        # The thermal gradient along the lead is assumed to remain constant for all currents below the design current. The resistance remains constant if the temperature remains constant. The estimated heat flow is reduced in proportion with the carried current.
         if current <= design_current:
             proportion      = current/design_current
             R               = design_Q/(design_current**2.0)
             power           = R*current**2.0
             Q               = zero_Q + proportion * (design_Q - zero_Q)
-            print("Q = ", Q)
-            print("power = ", power)
-
+            #print("Q = ", Q)
+            #print("power = ", power)
 
         # If the supplied current is higher than the design current the maximum temperature in the lead will be higher than ambient. Solve by dividing the lead at the maximum temperature point.
         else:
@@ -193,6 +189,7 @@ class Cryogenic_Lead(Energy_Component):
             error           = 1
             guess_over      = 0
             guess_diff      = hot_temp
+
             while error > 0.01:
                 # Find length of warmer part of lead
                 warm_Q          = self.Q_min(material, hot_temp, max_temp, current)
@@ -224,6 +221,5 @@ class Cryogenic_Lead(Energy_Component):
                 # All Q is out of the lead, so the electrical power use in the lead is the sum of the Qs
                 power       = warm_Q + cool_Q
                 print("warm Q = ", warm_Q)
-        
 
         return [Q,power]

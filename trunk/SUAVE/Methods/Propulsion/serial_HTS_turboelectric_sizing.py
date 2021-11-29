@@ -5,15 +5,6 @@
 # Modified: Nov 2021,   S. Claridge
 #        
 
-""" create and evaluate a serial hybrid network that follows the power flow:
-Turboelectric Generators -> Motor Drivers -> Electric Poropulsion Motors
-where the electric motors have cryogenically cooled HTS rotors that follow the power flow:
-Turboelectric Generators -> Current Supplies -> HTS Rotor Coils
-and
-Turboelectric Generators -> Cryocooler <- HTS Rotor Heat Load
-There is also the capability for the HTS components to be cryogenically cooled using liquid or gaseous cryogen, howver this is not sized other than applying a factor to the cryocooler required power.
-"""
-
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
@@ -21,26 +12,40 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Data
 from SUAVE.Methods.Power.Turboelectric.Sizing.initialize_from_power import initialize_from_power
-from SUAVE.Methods.Cooling.Leads.copper_lead import initialize_copper_lead
-from SUAVE.Methods.Cooling.Leads.copper_lead import Q_offdesign
-from SUAVE.Methods.Cooling.Cryocooler.Sizing.size_cryocooler import size_cryocooler
 
-from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
 
 ## @ingroup Methods-Propulsion
 def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = None, altitude = None, delta_isa = 0, conditions = None, cryo_cold_temp = 50.0, cryo_amb_temp = 300.0):
-    """
-    creates and evaluates a ducted_fan network based on an atmospheric sizing condition
-    creates and evaluates a serial hybrid network that includes a HTS motor driven ducted fan, turboelectric generator, and the required supporting equipment including cryogenic cooling
+    """create and evaluate a serial hybrid network that follows the power flow:
+    Turboelectric Generators -> Motor Drivers -> Electric Poropulsion Motors
+    where the electric motors have cryogenically cooled HTS rotors that follow the power flow:
+    Turboelectric Generators -> Current Supplies -> HTS Rotor Coils
+    and
+    Turboelectric Generators -> Cryocooler <- HTS Rotor Heat Load
+    There is also the capability for the HTS components to be cryogenically cooled using liquid or gaseous cryogen, howver this is not sized other than applying a factor to the cryocooler required power.
 
-    Inputs:
-    Turboelectric_HTS_Ducted_Fan    Serial HTYS hybrid ducted fan network object (to be modified)
-    mach_number
-    altitude                        [meters]
-    delta_isa                       temperature difference [K]
-    conditions                      ordered dict object
-    """
-    
+        Assumptions:
+        One powertrain model represents all engines in the model.
+        There are no transmission losses between components
+        the shaft torque and power required from the fan is the same as what would be required from the fan of a turbofan engine.
+
+        Source:
+        N/A
+
+        Inputs:
+        Turboelectric_HTS_Ducted_Fan    Serial HTYS hybrid ducted fan network object (to be modified)
+        mach_number
+        altitude                        [meters]
+        delta_isa                       temperature difference [K]
+        conditions                      ordered dict object
+
+        Outputs:
+        N/A
+
+        Properties Used:
+        N/A
+        """       
+
     # Unpack components
     ducted_fan      = Turboelectric_HTS_Ducted_Fan.ducted_fan       # Propulsion fans
     motor           = Turboelectric_HTS_Ducted_Fan.motor            # Propulsion fan motors
@@ -169,7 +174,7 @@ def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
 
     # update the design thrust value
     ducted_fan.design_thrust = thrust.total_design
-      
+
     # compute the sls_thrust
     
     # call the atmospheric model to get the conditions at the specified altitude
@@ -225,25 +230,24 @@ def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
 
     # Get power required by the cryogenic rotor stream
     # The sizing conditions here are ground level conditions as this is highest cryocooler demand
-    HTS_current                 = rotor.current
+    HTS_current                 = np.array([rotor.current])
     rotor_input_power           = rotor.power(HTS_current, rotor.skin_temp)
     # initialize copper lead optimses the leads for the conditions set elsewhere, i.e. the lead is not sized here as it should be sized for the maximum ambient temperature
-    initialize_copper_lead(current_lead)
-    current_lead_powers         = Q_offdesign(current_lead, HTS_current)
-    lead_power                  = current_lead_powers[1]
+    current_lead.initialize_material_lead()
+    current_lead_powers         = current_lead.Q_offdesign( HTS_current)
+    lead_power                  = current_lead_powers[0,1]
     leads_power                 = 2 * lead_power             # multiply lead loss by number of leads to get total loss
     ccs_output_power            = leads_power + rotor_input_power
     ccs_input_power             = ccs.power(HTS_current, ccs_output_power)
     # The cryogenic components are also part of the rotor power stream
-    lead_cooling_power          = current_lead_powers[0]
+    lead_cooling_power          = current_lead_powers[0,0]
     leads_cooling_power         = 2 * lead_cooling_power   # multiply lead cooling requirement by number of leads to get total cooling requirement
     total_lead_cooling_power    = leads_cooling_power * number_of_engines
     rotor_cooling_power         = rotor.outputs.cryo_load
     cooling_power               = rotor_cooling_power + leads_cooling_power  # Cryocooler must cool both rotor and supply leads
     cryocooler_input_power      = 0.0
 
-    size_cryocooler(cryocooler, cooling_power, cryo_cold_temp, cryo_amb_temp)
-    cryocooler_input_power  = cryocooler.rated_power
+    cryocooler_input_power      = cryocooler.rated_power
     rotor_power                 = ccs_input_power + cryocooler_input_power
 
     # Add power required by each stream

@@ -148,6 +148,8 @@ class Aerodynamics(Basic):
         
         # weights conditions
         self.weights.vehicle_mass_rate     = ones_1col * 0
+        self.weights.vehicle_fuel_rate            = ones_1col * 0
+        self.weights.vehicle_additional_fuel_rate     = ones_1col * 0
         
         # noise conditions
         self.noise                             = Conditions()

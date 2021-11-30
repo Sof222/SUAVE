@@ -193,6 +193,11 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         # Calculate the fuel mass flow rate at the turboelectric power supply.
         fuel_mdot                   = number_of_supplies * powersupply.energy_calc(conditions, numerics)
 
+        print("num supplies = ", number_of_supplies)
+        print("energy calc", powersupply.energy_calc(conditions, numerics))
+        print("conditions = ", conditions)
+        
+
         # Sum the mass flow rates and store this total as vehicle_mass_rate so the vehicle mass change reflects both the fuel used and the cryogen used, unless the cryogen is fuel.
         results.vehicle_mass_rate   = fuel_mdot + (cryogen_mdot * (1.0-cryogen_is_fuel))
 
@@ -200,7 +205,7 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         # Pack up the mass flow rate components so they can be tracked.
         results.vehicle_additional_fuel_rate   = cryogen_mdot
         results.vehicle_fuel_rate      = fuel_mdot   
-
+        print("fuel rate = ", results.vehicle_fuel_rate )
 
 
         return results

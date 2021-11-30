@@ -146,7 +146,7 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
     results.segments.condtions.
         frames.inertial.time
         weights.fuel_mass
-        weights.extra_mass
+        weights.additional_fuel_mass
     Outputs: 
     Plots
     Properties Used:
@@ -163,7 +163,7 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
         segment  = results.segments[i]
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
         fuel     = segment.conditions.weights.fuel_mass[:,0]
-        alt_fuel = segment.conditions.weights.additional_fuel_mass_mass[:,0]
+        alt_fuel = segment.conditions.weights.additional_fuel_mass[:,0]
 
 
         axes = plt.subplot(1,1,1)
@@ -172,7 +172,7 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
             plot_fuel = np.negative(fuel)
             plot_alt_fuel = np.negative(alt_fuel)
             axes.plot( time , plot_fuel , 'ro-' , label = 'fuel')
-            axes.plot( time , plot_alt_fuel , 'bo-', label = 'alternative fuel' )
+            axes.plot( time , plot_alt_fuel , 'bo-', label = 'additional fuel' )
             axes.plot( time , np.add(plot_fuel, plot_alt_fuel), 'go-', label = 'total fuel' )
 
             axes.legend(loc='center right')   

@@ -141,7 +141,7 @@ def update_weights(segment):
     conditions.weights.total_mass[1:,0]                     = m[1:,0] # don't mess with m0
     conditions.frames.inertial.gravity_force_vector[:,2]    = W[:,0]
     conditions.weights.fuel_mass[1:,0]                      = mf[1:,0]
-    conditions.weights.additional_fuel_mass[1:,0]                     = ma[1:,0]
+    conditions.weights.additional_fuel_mass[1:,0]           = ma[1:,0]
 
 
     return

@@ -70,6 +70,7 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
         axes.set_ylabel('Weight (lb)',axis_font)
         set_axes(axes)
     
+
     plt.tight_layout()     
     if save_figure:
         plt.savefig(save_filename + file_type)  
@@ -157,22 +158,23 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
 
-
     prev_seg_fuel = 0
     prev_seg_extra_fuel= 0
     total_fuel = 0
 
     axes = plt.subplot(1,1,1)
-
-    if "vehicle_additional_fuel_rate" in results:
             
-        for i in range(len(results.segments)):
+    for i in range(len(results.segments)):
 
-            segment  = results.segments[i]
-            time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
+        segment  = results.segments[i]
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
+
+        if not all( i == 0 for i in segment.conditions.weights.additional_fuel_mass[:,0]):
+
 
             fuel     = segment.conditions.weights.fuel_mass[:,0]
             alt_fuel = segment.conditions.weights.additional_fuel_mass[:,0]
+
             if i == 0:
 
                 plot_fuel = np.negative(fuel)
@@ -194,18 +196,19 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
                 axes.plot( time , np.negative(current_alt_fuel ), 'bo-')
                 axes.plot( time , np.negative(current_fuel + current_alt_fuel), 'go-')
 
-    else:
-        initial_weight  = results.segments[0].conditions.weights.total_mass[:,0][0]
-        for i in range(len(results.segments) ) :
-            segment  = results.segments[i]
-            fuel     = segment.conditions.weights.total_mass[:,0]
-            time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
+        else:
             
-            total_fuel  = np.negative(segment.conditions.weights.total_mass[:,0] - initial_weight )
-            print("fuel = ", total_fuel)
-            axes.plot( time, total_fuel, 'go-')
+            initial_weight  = results.segments[0].conditions.weights.total_mass[:,0][0]
+            
+            for i in range(len(results.segments) ) :
+                segment  = results.segments[i]
+                fuel     = segment.conditions.weights.total_mass[:,0]
+                time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
+                total_fuel  = np.negative(segment.conditions.weights.total_mass[:,0] - initial_weight )
+                axes.plot( time, total_fuel, 'go-')
 
 
+    
     axes.set_ylabel('Fuel (kg)',axis_font)
     axes.set_xlabel('Time (min)',axis_font)
 

@@ -56,7 +56,7 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         self.has_additional_fuel_type   = True
         self.leads                      = 2.0   # number of cryogenic leads supplying the rotor(s). Typically twice the number of rotors.
         self.number_of_engines          = 1.0   # number of ducted_fans, also the number of propulsion motors.
-
+        self.number_of_powersupplies    = 0.0
         self.engine_length              = 1.0
         self.bypass_ratio               = 0.0
         self.areas                      = Data()
@@ -102,7 +102,7 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         rotor_surface_temp          = self.skin_temp                # Exterior temperature of the rotors
         leads                       = self.leads                    # number of rotor leads, typically twice the number of rotors
         number_of_engines           = self.number_of_engines        # number of propulsors and number of propulsion motors
-        number_of_supplies          = self.powersupply.number_of_engines    # number of turboelectric generators
+        number_of_supplies          = self.number_of_powersupplies  # number of turboelectric generators
         cooling_share_cryogen       = self.cryogen_proportion       # Proportion of rotor cooling provided by cryogen
         cooling_share_cryocooler    = 1.0 - cooling_share_cryogen   # Proportion of rotor cooling provided by cryocooler
         cryogen_is_fuel             = self.heat_exchanger.cryogen_is_fuel   # Proportion of the cryogen used as fuel.
@@ -195,7 +195,6 @@ class Turboelectric_HTS_Ducted_Fan(Network):
 
         # Sum the mass flow rates and store this total as vehicle_mass_rate so the vehicle mass change reflects both the fuel used and the cryogen used, unless the cryogen is fuel.
         results.vehicle_mass_rate   = fuel_mdot + (cryogen_mdot * (1.0-cryogen_is_fuel))
-
 
         # Pack up the mass flow rate components so they can be tracked.
         results.vehicle_additional_fuel_rate   = cryogen_mdot

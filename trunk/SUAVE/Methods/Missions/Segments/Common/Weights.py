@@ -136,7 +136,7 @@ def update_weights(segment):
 
     # weight
     W = m*g
-
+    
     # pack
     conditions.weights.total_mass[1:,0]                     = m[1:,0] # don't mess with m0
     conditions.frames.inertial.gravity_force_vector[:,2]    = W[:,0]

@@ -367,7 +367,6 @@ def energy_network():
     F_off_design            = results_off_design.thrust_force_vector
     mdot_off_design         = results_off_design.vehicle_mass_rate
     
-    
     # Test the model 
     # Specify the expected values
     expected = Data()

@@ -169,7 +169,7 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
         segment  = results.segments[i]
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
 
-        if not all( i == 0 for i in segment.conditions.weights.additional_fuel_mass[:,0]):
+        if segment.conditions.weights.has_additional_fuel:
 
             fuel     = segment.conditions.weights.fuel_mass[:,0]
             alt_fuel = segment.conditions.weights.additional_fuel_mass[:,0]
@@ -178,7 +178,7 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
 
                 plot_fuel = np.negative(fuel)
                 plot_alt_fuel = np.negative(alt_fuel)
-                
+
                 axes.plot( time , plot_fuel , 'ro-' , label = 'fuel')
                 axes.plot( time , plot_alt_fuel , 'bo-', label = 'additional fuel' )
                 axes.plot( time , np.add(plot_fuel, plot_alt_fuel), 'go-', label = 'total fuel' )
@@ -205,7 +205,7 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
                 fuel     = segment.conditions.weights.total_mass[:,0]
                 time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
                 total_fuel  = np.negative(segment.conditions.weights.total_mass[:,0] - initial_weight )
-                axes.plot( time, total_fuel, 'go-')
+                axes.plot( time, total_fuel, 'mo-')
 
     axes.set_ylabel('Fuel (kg)',axis_font)
     axes.set_xlabel('Time (min)',axis_font)

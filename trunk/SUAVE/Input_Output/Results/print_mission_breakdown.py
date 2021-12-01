@@ -72,7 +72,10 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
     total_additional_fuel   = 0.
 
     i = 0
+
+
     for key in results.segments.keys():        #loop for all segments
+
         segment = results.segments[key]
 
         if imperial:
@@ -143,14 +146,18 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         add_fuel_str     = ""
 
         # Test if additional fuel data exists
-        if not all( i == 0 for i in segment.conditions.weights.additional_fuel_mass[:,0]):
+        if segment.conditions.weights.has_additional_fuel:
+
             # Modify header strings
             add_fuel_data = " ADDITIONAL FUEL "
             add_fuel_unit = "   kg    "
             # Data for cyrogen column
             add_fuel_str =  str('%8.2f'   % ALT_FUEL)     + '|'
+            
             # Replace total mass difference with the fuel mass difference
             Fuel = FUEL_A
+            Fuel_str=   str('%8.2f'   % Fuel)     + '|'
+
 
         # String formatting
         CLf_str =   str('%15.3f'   % CLf)     + '|'
@@ -170,6 +177,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         Segment_str = '%- 31s |' % key 
 
         if i == 0:  # Write header
+
             if imperial:
                 fid.write( '         FLIGHT PHASE           |   ALTITUDE    |     WEIGHT      |  DIST.  | TIME  |            SPEED              |  FUEL  |' + add_fuel_data + '\n')
                 fid.write( '                                | From  |   To  |Initial | Final  |         |       |Inicial| Final |Inicial| Final |        |\n')
@@ -191,12 +199,12 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         i = i+1
 
     # Summary of results [nm]
-    TotalTime = (results.segments[-1].conditions.frames.inertial.time[-1][0] - results.segments[0].conditions.frames.inertial.time[0][0])  #[min]
+    TotalTime = results.segments[-1].conditions.frames.inertial.time[-1][0] - results.segments[0].conditions.frames.inertial.time[0][0]  #[min]
     TotalFuel = results.segments[0].conditions.weights.total_mass[0] - results.segments[-1].conditions.weights.total_mass[-1]   #[kg]
 
 
     # Summary for systems with additional fuel mass usage. TotalFuel is modified to reflect this not being the only variable mass
-    if not all( i == 0 for i in segment.conditions.weights.additional_fuel_mass[:,0]):
+    if results.segments[0].conditions.weights.has_additional_fuel:
         TotalFuel = total_fuel
 
     fid.write(2*'\n')
@@ -204,10 +212,11 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         fid.write(' Total Range         (nm) ........... '+ str('%9.0f'   % TotalRange)+'\n')
     elif SI:
         fid.write(' Total Range         (km) ........... ' + str('%9.0f' % TotalRange) + '\n')
+
     fid.write(' Total Fuel          (kg) ........... '+ str(TotalFuel)+'\n')
     
     # additional fuel use results
-    if not all( i == 0 for i in segment.conditions.weights.additional_fuel_mass[:,0]):
+    if results.segments[0].conditions.weights.has_additional_fuel:
         fid.write(' Total Additional Fuel       (kg) ........... '+ str(total_additional_fuel)+'\n')
 
 

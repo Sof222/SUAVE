@@ -1,7 +1,9 @@
 # tut_mission_B737.py
 # 
-# Created:  Nov 2021, S. Claridge
-# 
+# Created:  Aug 2014, SUAVE Team
+# Modified: Aug 2017, SUAVE Team
+#           Mar 2020, E. Botero
+#           Nov 2021, S. Claridge
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
@@ -24,6 +26,12 @@ from SUAVE.Input_Output.Results import  *
 
 from SUAVE.Attributes.Solids.Copper import Copper
 
+from SUAVE.Attributes.Gases import Air
+
+from SUAVE.Components.Energy.Networks.Turboelectric_HTS_Ducted_Fan import Turboelectric_HTS_Ducted_Fan   
+
+from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
+
 from copy import deepcopy
 
 
@@ -45,20 +53,13 @@ def main():
     configs.finalize()
     analyses.finalize()
 
-    # Determine the vehicle weight breakdown (independent of mission fuel usage)
-    weights = analyses.configs.base.weights
-  
-
     # Perform a mission analysis
     mission = analyses.missions.base
     
-    
     results = mission.evaluate()
 
-    # Plot all mission results, including items such as altitude profile and L/D
-    plot_mission(results)
+    plot_fuel_use(results)
     
-    #print_weight_breakdown(configs.base,filename = 'B737_weight_breakdown.dat')
     print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
 
     return
@@ -194,6 +195,7 @@ def vehicle_setup():
     # Vehicle level parameters
     # The vehicle reference area typically matches the main wing reference area 
     vehicle.reference_area         = 124.862 * Units['meters**2']  
+
     # Number of passengers, control settings, and accessories settings are used by the weights
     # methods
     vehicle.passengers             = 170
@@ -238,6 +240,8 @@ def vehicle_setup():
     # If a different known value (such as leading edge sweep) is given, it should be converted to
     # quarter chord sweep and added here. In some cases leading edge sweep will be used directly as
     # well, and can be entered here too.
+
+
     wing.sweeps.quarter_chord    = 25 * Units.deg
     wing.thickness_to_chord      = 0.1
     wing.taper                   = 0.1
@@ -251,6 +255,7 @@ def vehicle_setup():
     wing.origin                  = [[13.61, 0, -1.27]] * Units.meter
     wing.vertical                = False
     wing.symmetric               = True
+
     # The high lift flag controls aspects of maximum lift coefficient calculations
     wing.high_lift               = True
     # The dynamic pressure ratio is used in stability calculations
@@ -391,7 +396,6 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(fuselage)
     
-    
     # ------------------------------------------------------------------
     #   Nacelles
     # ------------------------------------------------------------------ 
@@ -413,17 +417,15 @@ def vehicle_setup():
     
     vehicle.append_component(nacelle)  
     vehicle.append_component(nacelle_2)     
-        
 
-
-    # ------------------------------------------------------------------
-    #   Ducted Fan Network
+ # ------------------------------------------------------------------
+    #   Turboelectric HTS Ducted Fan Network 
     # ------------------------------------------------------------------    
     
-    # Instantiate the gas turbine network
+    # Instantiate the Turboelectric HTS Ducted Fan Network 
     # This also instantiates the component parts of the efan network, then below each part has its properties modified so they are no longer the default properties as created here at instantiation. 
-    efan = SUAVE.Components.Energy.Networks.Turboelectric_HTS_Ducted_Fan()
-    efan.tag = 'turbofan'
+    efan = Turboelectric_HTS_Ducted_Fan()
+    efan.tag = 'turbo_fan'
 
     # Outline of Turboelectric drivetrain components. These are populated below.
     # 1. Propulsor     Ducted_fan
@@ -442,14 +444,16 @@ def vehicle_setup():
     # 9. Heat Exchanger
     # The components are then sized
 
+    # ------------------------------------------------------------------
+    #   Component 1 - Ducted Fan
+    
     efan.ducted_fan                    = SUAVE.Components.Energy.Networks.Ducted_Fan()
     efan.ducted_fan.tag                = 'ducted_fan'
     efan.ducted_fan.number_of_engines  = 12.
     efan.number_of_engines             = efan.ducted_fan.number_of_engines
     efan.ducted_fan.engine_length      = 1.1            * Units.meter
-    efan.ducted_fan.nacelle_diameter   = 0.84           * Units.meter
 
-    # Positioning variables for the propulsor locations
+    # Positioning variables for the propulsor locations - 
     xStart = 15.0
     xSpace = 1.0
     yStart = 3.0
@@ -467,14 +471,10 @@ def vehicle_setup():
                                     [xStart+xSpace*1,  (yStart+ySpace*1), -2.0],
                                     [xStart+xSpace*0,  (yStart+ySpace*0), -2.0]     ] # meters 
 
-    #compute engine areas
-    efan.ducted_fan.areas.wetted      = 1.1*np.pi*efan.ducted_fan.nacelle_diameter*efan.ducted_fan.engine_length
-
     # copy the ducted fan details to the turboelectric ducted fan network to enable drag calculations
     efan.engine_length      = efan.ducted_fan.engine_length   
-    efan.nacelle_diameter   = efan.ducted_fan.nacelle_diameter
     efan.origin             = efan.ducted_fan.origin
-    efan.areas.wetted       = efan.ducted_fan.areas.wetted
+
 
     # working fluid
     efan.ducted_fan.working_fluid = SUAVE.Attributes.Gases.Air()
@@ -538,10 +538,10 @@ def vehicle_setup():
     # To compute the thrust
     thrust = SUAVE.Components.Energy.Processes.Thrust()       
     thrust.tag ='compute_thrust'
- 
+
     # total design thrust (includes all the propulsors)
     thrust.total_design             = 2.*24000. * Units.N #Newtons
- 
+
     # design sizing conditions
     altitude      = 35000.0*Units.ft
     mach_number   =     0.78 
@@ -549,49 +549,52 @@ def vehicle_setup():
     
     # add to network
     efan.ducted_fan.thrust = thrust
-
     # ------------------------------------------------------------------
     # Component 2 : HTS motor
+    
     efan.motor = SUAVE.Components.Energy.Converters.Motor_Lo_Fid()
     efan.motor.tag = 'motor'
     # number_of_motors is not used as the motor count is assumed to match the engine count
 
     # Set the origin of each motor to match its ducted fan
     efan.motor.origin = efan.ducted_fan.origin
-
-    # efan.motor.resistance         = 0.0
-    # efan.motor.no_load_current    = 0.0
-    # efan.motor.speed_constant     = 0.0
     efan.motor.gear_ratio         = 1.0
     efan.motor.gearbox_efficiency = 1.0
-    # efan.motor.expected_current   = 0.0
     efan.motor.motor_efficiency   = 0.96
 
     # ------------------------------------------------------------------
     #  Component 3 - Powersupply
-    efan.powersupply = SUAVE.Components.Energy.Converters.Turboelectric()
-    efan.powersupply.tag = 'powersupply'
-    efan.number_of_powersupplies        = 2.
-    efan.powersupply.propellant         = SUAVE.Attributes.Propellants.Jet_A()
-    efan.powersupply.efficiency         = .37
+    
+    efan.powersupply                        = SUAVE.Components.Energy.Converters.Turboelectric()
+    efan.powersupply.tag                    = 'powersupply'
+    efan.number_of_powersupplies            = 2.
+    efan.powersupply.propellant             = SUAVE.Attributes.Propellants.Jet_A()
+    efan.powersupply.oxidizer               = Air()
+    efan.powersupply.number_of_engines      = 2.0                   # number of turboelectric machines, not propulsors
+    efan.powersupply.efficiency             = .37                   # Approximate average gross efficiency across the product range.
+    efan.powersupply.volume                 = 2.36    *Units.m**3.  # 3m long from RB211 datasheet. 1m estimated radius.
+    efan.powersupply.rated_power            = 37400.0 *Units.kW
+    efan.powersupply.mass_properties.mass   = 2500.0  *Units.kg     # 2.5 tonnes from Rolls Royce RB211 datasheet 2013.
+    efan.powersupply.specific_power         = efan.powersupply.rated_power/efan.powersupply.mass_properties.mass
+    efan.powersupply.mass_density           = efan.powersupply.mass_properties.mass /efan.powersupply.volume 
 
     # ------------------------------------------------------------------
     #  Component 4 - Electronic Speed Controller (ESC)
+    
     efan.esc = SUAVE.Components.Energy.Distributors.HTS_DC_Supply()     # Could make this where the ESC is defined as a Siemens SD104
     efan.esc.tag = 'esc'
 
     efan.esc.efficiency             =   0.95                 # Siemens SD104 SiC Power Electronicss reported to be this efficient
-    # efan.esc.mass_properties.mass   = 100.0     # [kg]
-    # efan.esc.rated_current          = 100.0     # [A]      # Not currently used
 
     # ------------------------------------------------------------------
     #  Component 5 - HTS rotor (part of the propulsor motor)
+    
     efan.rotor = SUAVE.Components.Energy.Converters.Motor_HTS_Rotor()
     efan.rotor.tag = 'rotor'
 
     efan.rotor.temperature              =    50.0       # [K]
     efan.rotor.skin_temp                =   300.0       # [K]       Temp of rotor outer surface is not ambient
-    efan.rotor.current                  =  1500.0      # [A]       Most of the cryoload will scale with this number if not using HTS Dynamo
+    efan.rotor.current                  =  1000.0       # [A]       Most of the cryoload will scale with this number if not using HTS Dynamo
     efan.rotor.resistance               =     0.0001    # [ohm]     20 x 100 nOhm joints should be possible (2uOhm total) so 1mOhm is an overestimation.
     efan.rotor.number_of_engines        = efan.ducted_fan.number_of_engines      
     efan.rotor.length                   =     0.573     * Units.meter       # From paper: DOI:10.2514/6.2019-4517 Would be good to estimate this from power instead.
@@ -603,41 +606,33 @@ def vehicle_setup():
 
     # ------------------------------------------------------------------
     #  Component 6 - Copper Supply Leads of propulsion motor rotors
+    
     efan.lead = SUAVE.Components.Energy.Distributors.Cryogenic_Lead()
     efan.lead.tag = 'lead'
-
+    copper = Copper()
     efan.lead.cold_temp                 = efan.rotor.temperature   # [K]
     efan.lead.hot_temp                  = efan.rotor.skin_temp     # [K]
     efan.lead.current                   = efan.rotor.current       # [A]
     efan.lead.length                    = 0.3                      # [m]
-    efan.lead.material                  = Copper()
+    efan.lead.material                  = copper
     efan.leads                          = efan.ducted_fan.number_of_engines * 2.0      # Each motor has two leads to make a complete circuit
 
     # ------------------------------------------------------------------
     #  Component 7 - Rotor Constant Current Supply (CCS)
+    
     efan.ccs = SUAVE.Components.Energy.Distributors.HTS_DC_Supply()
     efan.ccs.tag = 'ccs'
 
     efan.ccs.efficiency             =   0.95               # Siemens SD104 SiC Power Electronics reported to be this efficient
-    # efan.ccs.mass_properties.mass   = 100.0     # [kg]
-    # efan.ccs.rated_current          = 100.0     # [A]      # Not currently used
-
-
     # ------------------------------------------------------------------
     #  Component 8 - Cryocooler, to cool the HTS Rotor
-    efan.cryogen_proportion = 1       # what proportion of the cryogenic cooling is not provided by the cryocooler, i.e. how much is direct cooling via the cryogenic heat exchanger
+ 
     efan.cryocooler = SUAVE.Components.Energy.Cooling.Cryocooler()
     efan.cryocooler.tag = 'cryocooler'
 
     efan.cryocooler.cooler_type        = 'GM'
     efan.cryocooler.min_cryo_temp      = efan.rotor.temperature     # [K]
     efan.cryocooler.ambient_temp       = 300.0                      # [K]
-   
-
-    # Sizing Conditions. The cryocooler may have greater power requirement at low altitude as the cooling requirement may be static during the flight but the ambient temperature may change.
-    cryo_temp       =  50.0     # [K]
-    amb_temp        = 300.0     # [K]
-    # heat_load       =           # Heat load for sizing can match the load at the powertrain sizing conditions
 
     # ------------------------------------------------------------------
     #  Component 9 - Cryogenic Heat Exchanger, to cool the HTS Rotor
@@ -648,16 +643,23 @@ def vehicle_setup():
     efan.heat_exchanger.cryogen_inlet_temperature       =     20.0                  # [K]
     efan.heat_exchanger.cryogen_outlet_temperature      = efan.rotor.temperature    # [K]
     efan.heat_exchanger.cryogen_pressure                = 100000.0                  # [Pa]
-    efan.heat_exchanger.cryogen_is_fuel                 =      1
+    efan.heat_exchanger.cryogen_is_fuel                 =      0.0
+
+    # Sizing Conditions. The cryocooler may have greater power requirement at low altitude as the cooling requirement may be static during the flight but the ambient temperature may change.
+    cryo_temp       =  50.0     # [K]
+    amb_temp        = 300.0     # [K]
 
     # ------------------------------------------------------------------
     # Powertrain Sizing
 
+    ducted_fan_sizing(efan.ducted_fan,mach_number,altitude)
+
+    serial_HTS_turboelectric_sizing(efan,mach_number,altitude, cryo_cold_temp = cryo_temp, cryo_amb_temp = amb_temp)
+
+
     # add turboelectric network to the vehicle 
     vehicle.append_component(efan)
 
-    # Size powertrain components
-    serial_HTS_turboelectric_sizing(efan,mach_number,altitude, cryo_cold_temp = cryo_temp, cryo_amb_temp = amb_temp)
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
@@ -807,6 +809,7 @@ def mission_setup(analyses):
 
     # Base segment 
     base_segment = Segments.Segment()
+    #base_segment.state.conditions.weights.has_aditional_fuel = True
 
     # ------------------------------------------------------------------
     #   First Climb Segment: Constant Speed, Constant Rate
@@ -829,6 +832,7 @@ def mission_setup(analyses):
     segment.altitude_end   = 3.0   * Units.km
     segment.air_speed      = 125.0 * Units['m/s']
     segment.climb_rate     = 6.0   * Units['m/s']
+    #segment.conditions.weights.has_additional_fuel = True
 
 
     # Add to misison
@@ -849,6 +853,7 @@ def mission_setup(analyses):
     segment.altitude_end   = 8.0   * Units.km
     segment.air_speed      = 190.0 * Units['m/s']
     segment.climb_rate     = 6.0   * Units['m/s']
+    #segment.conditions.weights.has_additional_fuel = True
 
     # Add to mission
     mission.append_segment(segment)
@@ -865,7 +870,7 @@ def mission_setup(analyses):
     segment.altitude_end = 10.668 * Units.km
     segment.air_speed    = 226.0  * Units['m/s']
     segment.climb_rate   = 3.0    * Units['m/s']
-
+    #segment.conditions.weights.has_additional_fuel = True
     # Add to mission
     mission.append_segment(segment)
 
@@ -880,7 +885,7 @@ def mission_setup(analyses):
 
     segment.air_speed  = 230.412 * Units['m/s']
     segment.distance   = 2490. * Units.nautical_miles
-
+    #segment.conditions.weights.has_additional_fuel = True
 
     # Add to mission
     mission.append_segment(segment)
@@ -897,7 +902,7 @@ def mission_setup(analyses):
     segment.altitude_end = 8.0   * Units.km
     segment.air_speed    = 220.0 * Units['m/s']
     segment.descent_rate = 4.5   * Units['m/s']
-    
+    #segment.conditions.weights.has_additional_fuel = True
 
 
     # Add to mission
@@ -915,6 +920,8 @@ def mission_setup(analyses):
     segment.altitude_end = 6.0   * Units.km
     segment.air_speed    = 195.0 * Units['m/s']
     segment.descent_rate = 5.0   * Units['m/s']
+
+    #segment.conditions.weights.has_additional_fuel = True
     
     # Add to mission
     mission.append_segment(segment)
@@ -936,6 +943,7 @@ def mission_setup(analyses):
     segment.air_speed    = 170.0 * Units['m/s']
     segment.descent_rate = 5.0   * Units['m/s']
     
+    #segment.conditions.weights.has_additional_fuel = True
     # Add to mission
     mission.append_segment(segment)
 
@@ -952,6 +960,8 @@ def mission_setup(analyses):
     segment.altitude_end = 2.0   * Units.km
     segment.air_speed    = 150.0 * Units['m/s']
     segment.descent_rate = 5.0   * Units['m/s']
+
+    #segment.conditions.weights.has_additional_fuel = True
     
     # Add to mission
     mission.append_segment(segment)
@@ -970,6 +980,8 @@ def mission_setup(analyses):
     segment.air_speed    = 145.0 * Units['m/s']
     segment.descent_rate = 3.0   * Units['m/s']
     
+    #segment.conditions.weights.has_additional_fuel = True
+
     # Append to mission
     mission.append_segment(segment)
 
@@ -994,18 +1006,6 @@ def missions_setup(base_mission):
 
     return missions  
 
-# ----------------------------------------------------------------------
-#   Plot Mission
-# ----------------------------------------------------------------------
-
-def plot_mission(results,line_style='bo-'):
-    """This function plots the results of the mission analysis and saves those results to 
-    png files."""
-    print("fuel mass = ", results.segments[0].conditions.weights.additional_fuel_mass[:,0])
-    plot_fuel_use(results, line_style)
-
-    
-    return
 
 # This section is needed to actually run the various functions in the file
 if __name__ == '__main__': 

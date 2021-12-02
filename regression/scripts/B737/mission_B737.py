@@ -50,7 +50,7 @@ def main():
     simple_sizing(configs, analyses)
     configs.finalize()
     analyses.finalize() 
- 
+
     # mission analysis
     mission = analyses.missions.base
     results = mission.evaluate()
@@ -208,6 +208,9 @@ def plot_mission(results,line_style='bo-'):
     
     # Plot Velocities 
     plot_aircraft_velocities(results, line_style)  
+
+    # Plot Fuel Use
+    plot_fuel_use(results, line_style)
 
     return
 

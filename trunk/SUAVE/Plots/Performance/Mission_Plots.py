@@ -169,7 +169,8 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
         segment  = results.segments[i]
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
 
-        if segment.conditions.weights.has_additional_fuel:
+        if "has_additional_fuel" in segment.conditions.weights and segment.conditions.weights.has_additional_fuel == True:
+
 
             fuel     = segment.conditions.weights.fuel_mass[:,0]
             alt_fuel = segment.conditions.weights.additional_fuel_mass[:,0]

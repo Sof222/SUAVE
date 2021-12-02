@@ -193,7 +193,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         fid.write( Segment_str+HPi_str+HPf_str+Wi_str+Wf_str+Dist_str+T_str+KCASi_str+KCASf_str+Mi_str+Mf_str+Fuel_str+add_fuel_str+'\n')
         
         # Sum fuel and additional fuel usage for printing summary once mission complete
-        total_fuel      = total_fuel + FUEL_A
+        total_fuel      = total_fuel + FUEL_A + ALT_FUEL
         total_additional_fuel   = total_additional_fuel + ALT_FUEL
         
         i = i+1

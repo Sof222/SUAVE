@@ -35,7 +35,7 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
         """ This sets the default values for the network to function.
     
             Assumptions:
-            Your system always uses 90 amps...?
+            N/A
     
             Source:
             N/A
@@ -55,24 +55,19 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
         self.powersupply                = None  # i.e. the turboelectric generator, the generator of which may be partial or fully HTS
         self.esc                        = None  # the electronics that supply the motor armature windings
         self.rotor                      = None  # the motor rotor (handled as a seperate component to the motor)
-        # self.lead                       = None  # the current leads that connect the rotor to the constant current supply
         self.hts_dynamo                 = None  # HTS Dynamo used instead of the current leads. This component includes the dynamo motor
-        # self.ccs                        = None  # the electronics that supply the rotor field windings
         self.dynamo_esc                 = None  # The dynamo motor speed controller
         self.cryocooler                 = None  # cryocooler which cools the rotor using energy
         self.heat_exchanger             = None  # heat exchanger that cools the rotor using cryogen
         self.cryogen_proportion         = 1.0   # Proportion of cooling to be supplied by the cryogenic heat exchanger, rather than by the cryocooler
-        # self.leads                      = 2.0   # number of cryogenic leads supplying the rotor(s). Typically twice the number of rotors.
         self.number_of_engines          = 1.0   # number of ducted_fans, also the number of propulsion motors.
 
-        # self.motor_efficiency   = .95
-        self.nacelle_diameter           = 1.0
         self.engine_length              = 1.0
         self.bypass_ratio               = 0.0
         self.areas                      = Data()
         self.tag                        = 'Network'
 
-        self.ambient_skin               = 0         # flag to set whether the outer surface of the rotor is amnbient temperature or not.
+        self.ambient_skin               = False         # flag to set whether the outer surface of the rotor is amnbient temperature or not.
         self.skin_temp                  = 300.0     # [K]  if self.ambient_skin is false, this is the temperature of the rotor skin. 
     
     # manage process with a driver function
@@ -103,17 +98,15 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
         powersupply                 = self.powersupply              # Electricity producer(s)
         esc                         = self.esc                      # Motor speed controller(s)
         rotor                       = self.rotor                    # Rotor(s) of the motor(s)
-        # lead                        = self.lead                     # Current leads supplying the rotor(s)
-        # ccs                         = self.ccs                      # Rotor constant current supply
         hts_dynamo                  = self.hts_dynamo               # HTS Dynamo supplying the rotor
         dynamo_esc                  = self.dynamo_esc               # HTS Dynamo speed controller
         cryocooler                  = self.cryocooler               # Rotor cryocoolers, powered by electricity
         heat_exchanger              = self.heat_exchanger           # Rotor cryocooling, powered by cryogen
+       
         ambient_skin                = self.ambient_skin             # flag to indicate rotor skin temp
         rotor_surface_temp          = self.skin_temp                # Exterior temperature of the rotor
         cooling_share_cryogen       = self.cryogen_proportion       # Proportion of rotor cooling provided by cryogen
         cooling_share_cryocooler    = 1.0 - cooling_share_cryogen   # Proportion of rotor cooling provided by cryocooler
-        # leads                       = self.leads                    # number of rotor leads, typically twice the number of rotors
         number_of_engines           = self.number_of_engines        # number of propulsors and number of propulsion motors
         number_of_supplies          = self.powersupply.number_of_engines    # number of turboelectric generators
         cryogen_is_fuel             = self.heat_exchanger.cryogen_is_fuel   # Is the cryogen used as fuel.
@@ -135,9 +128,9 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
         esc_power             = motor_power_in/esc.efficiency - motor_power_in
 
         # Set the rotor skin temp. Either it's ambient, or it's the temperature set in the rotor.
-        skin_temp           = np.empty_like(amb_temp)
-        skin_temp[:]        = amb_temp
-        if ambient_skin == 0:
+        skin_temp = amb_temp * 1
+
+        if ambient_skin == False:
             skin_temp[:]    = rotor_surface_temp 
 
         # If the rotor current is to be varied depending on the motor power here is the place to do it. For now the rotor current is set as constant.
@@ -148,27 +141,7 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
         rotor_power_in      = single_rotor_power * ducted_fan.number_of_engines
 
 
-        # -------- Rotor Current Supply ---------------------------------
-        # -------- Option one: Current Supply Leads ---------------------
-
-        # # Calculate the power loss in the rotor current supply leads.
-        # # The cryogenic loading due to the leads is also calculated here.
-        # lead_power            = np.zeros_like(rotor_current)
-        # lead_cryo_load        = np.full_like(rotor_current, lead.unpowered_Q)
-        # # Iterate through each element in the rotor_current array to build the cryo_load and lead_power array
-        # for index, r_current in np.ndenumerate(rotor_current):
-        #     if r_current != 0.0:
-        #         lead_powers             = Q_offdesign(lead, r_current)
-        #         lead_power[index]       = lead_powers[1]
-        #         lead_cryo_load[index]   = lead_powers[0]
-        # # Multiply the lead powers by the number of leads, this is typically twice the number of motors
-        # lead_power          = lead_power * leads
-        # lead_cryo_load      = lead_cryo_load * leads
-
-        # # Calculate the power used by the rotor's current supply.
-        # ccs_power             = (lead_power+rotor_power_in)/ccs.efficiency - (lead_power+rotor_power_in)
-
-        # -------- Option Two: Current Supply Dynamo --------------------
+        # --------  Current Supply Dynamo --------------------
 
         # Calculate the power loss in the HTS Dynamo.
         dynamo_powers           = hts_dynamo.shaft_power(rotor.temperature, rotor_current, single_rotor_power)
@@ -191,7 +164,6 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
         all_leads_power             = number_of_engines * lead_power    
         all_leads_cryo              = number_of_engines * lead_cryo_load
         all_ccs_power               = number_of_engines * ccs_power     
-        
 
         # Retreive the cryogenic heat load from the rotor components (not including the leads).
         rotor_cryo_cryostat         = rotor.outputs.cryo_load * number_of_engines
@@ -201,6 +173,7 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
 
         # Calculate the power required from the cryocoolers (if present)
         cryocooler_power = 0.0
+        
         if cooling_share_cryocooler != 0.0:
             cryocooler_load         = cooling_share_cryocooler * rotor_cryo_load
             cryocooler_power        = cryocooler.energy_calc(cryocooler_load, rotor.temperature, amb_temp)

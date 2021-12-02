@@ -5,6 +5,7 @@
 # Modified: Feb 2016, T. MacDonald
 #           May 2020, E. Botero
 #           Jul 2021, E. Botero
+#           Nov 2021, S. Claridge
 
 
 # ----------------------------------------------------------------------
@@ -130,6 +131,11 @@ class Container(Physical_Component.Container):
         results.vehicle_mass_rate   = 0.*ones_row(1)
 
         for net in self.values():
+            if hasattr(net, 'has_additional_fuel_type'):
+                if net.has_additional_fuel_type:
+                    results.vehicle_additional_fuel_rate  =  0.*ones_row(1) #fuel rate for additional fuel types, eg cryogenic fuel
+                    results.vehicle_fuel_rate             =  0.*ones_row(1)    
+
             results_p = net.evaluate_thrust(state) 
             
             for key in results.keys():

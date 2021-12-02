@@ -418,10 +418,8 @@ class AVL(Stability):
         num_cs       = 0
         cs_names     = []
         cs_functions = []
-        control_surfaces = False
         for wing in self.geometry.wings: # this parses through the wings to determine how many control surfaces does the vehicle have 
             if wing.control_surfaces:
-                control_surfaces = True 
                 wing = populate_control_sections(wing)     
                 num_cs_on_wing = len(wing.control_surfaces)
                 num_cs +=  num_cs_on_wing
@@ -460,7 +458,7 @@ class AVL(Stability):
             write_geometry(self,run_script_path)
             write_mass_file(self,run_conditions)
             write_run_cases(self,trim_aircraft)
-            write_input_deck(self, trim_aircraft,control_surfaces)
+            write_input_deck(self, trim_aircraft)
 
             # RUN AVL!
             results_avl = run_analysis(self)

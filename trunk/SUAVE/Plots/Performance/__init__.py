@@ -22,6 +22,7 @@ from .Mission_Plots       import create_video_frames
 from .Mission_Plots       import plot_ground_noise_levels  
 from .Mission_Plots       import plot_flight_profile_noise_contours 
 from .Mission_Plots       import plot_fuel_use
+from .Mission_Plots       import plot_fuel_use_animated
 
 from .Airfoil_Plots       import plot_airfoil_analysis_boundary_layer_properties 
 from .Airfoil_Plots       import plot_airfoil_analysis_polars

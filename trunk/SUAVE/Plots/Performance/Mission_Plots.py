@@ -16,6 +16,7 @@ import matplotlib.cm as cm
 import numpy as np 
 import plotly.graph_objects as go  
 import matplotlib.ticker as ticker 
+import pandas as pd
 
 # ------------------------------------------------------------------
 #   Altitude, SFC & Weight
@@ -169,6 +170,8 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
         segment  = results.segments[i]
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
 
+        #print("Time good = ", time)
+
         if "has_additional_fuel" in segment.conditions.weights and segment.conditions.weights.has_additional_fuel == True:
 
 
@@ -221,6 +224,119 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
         
     return
 
+    
+# ------------------------------------------------------------------
+#   Plot Fuel Use
+# ------------------------------------------------------------------
+
+def plot_fuel_use_animated(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Fuel_Burnt", file_type = ".png"):
+    """This plots aircraft fuel usage
+    Assumptions:
+    None
+    Source:
+    None
+    Inputs:
+    results.segments.condtions.
+        frames.inertial.time
+        weights.fuel_mass
+        weights.additional_fuel_mass
+    Outputs: 
+    Plots
+    Properties Used:
+    N/A	"""
+
+
+    prev_seg_fuel = 0
+    prev_seg_extra_fuel= 0
+
+
+    #values = np.zeros(shape=(3, len(results.segments)))
+
+    #time_values = np.zeros(shape = (1, len(results.segments[0].conditions.frames.inertial.time[:,0]) * len(results.segments) ))
+
+    #alt_fuel_values = np.zeros(shape = (1, len(results.segments[0].conditions.frames.inertial.time[:,0])))
+
+    #fuel_values = np.zeros(shape = (1, len(results.segments[0].conditions.frames.inertial.time[:,0])))
+
+    
+    segment  = results.segments[0]
+    time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
+
+    print("time = ", time)
+
+    time_values =  time.tolist()
+
+    alt_fuel_values = np.negative(results.segments[0].conditions.weights.additional_fuel_mass[:,0]).tolist()
+
+    fuel_values =  np.negative(results.segments[0].conditions.weights.fuel_mass[:,0]).tolist()
+
+    total_fuel = alt_fuel_values + fuel_values
+
+    for i in range(1, len(results.segments) ):
+        
+        segment  = results.segments[i]
+
+        fuel     = segment.conditions.weights.fuel_mass[:,0]
+        alt_fuel = segment.conditions.weights.additional_fuel_mass[:,0]
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
+
+        time_values += time.tolist()
+
+        prev_seg_fuel += results.segments[i-1].conditions.weights.fuel_mass[-1]
+        prev_seg_extra_fuel += results.segments[i-1].conditions.weights.additional_fuel_mass[-1]
+
+        current_fuel = np.add(fuel, prev_seg_fuel)
+        current_alt_fuel = np.add(alt_fuel, prev_seg_extra_fuel)
+
+        fuel_values +=  np.negative(current_fuel).tolist()
+
+        alt_fuel_values += np.negative(current_alt_fuel).tolist()
+
+    total_fuel = [sum(i) for i in zip(fuel_values, alt_fuel_values )]  
+
+
+    data = {'Alt Fuel': alt_fuel_values,
+            'Fuel': fuel_values,
+            'Total': total_fuel}
+
+    df = pd.DataFrame(data, index=time_values)
+
+    print(df)
+
+    df.index = pd.to_timedelta(df.index, unit='m')
+
+    print(df)
+
+    color = ['red', 'green', 'blue']
+    fig = plt.figure()
+    plt.xticks(rotation=45, ha="right", rotation_mode="anchor") #rotate the x-axis values
+    plt.subplots_adjust(bottom = 0.2, top = 0.9) #ensuring the dates (on the x-axis) fit in the screen
+    plt.ylabel('Fuel (kg)')
+    plt.xlabel('Time (min)')
+
+    def buildmebarchart(i):
+        plt.legend(df.columns)
+        p = plt.plot(df[:i].index, df[:i].values, 'o') #note it only returns the dataset, up to the point i
+        for i in range(0,3):
+            p[i].set_color(color[i]) #set the colour of each curve
+
+    from matplotlib.animation import FuncAnimation, PillowWriter
+
+
+
+    ani = FuncAnimation(fig, buildmebarchart,interval=100, repeat=True, frames=100)
+
+    
+    #ani.save('filename.mp4')
+    #plt.rcParams["animation.convert_path"] = "C:\Program Files\ImageMagick-7.1.0-Q16-HDRI\magick.exe"
+
+    #ani.save('myAnimation.gif', writer="imagemagick", extra_args="convert")
+
+    #ani.save("TLI.gif", dpi=300, writer=PillowWriter(fps=25))
+    
+    plt.show()
+        
+    return
 # ------------------------------------------------------------------
 #   Disc and Power Loadings
 # ------------------------------------------------------------------

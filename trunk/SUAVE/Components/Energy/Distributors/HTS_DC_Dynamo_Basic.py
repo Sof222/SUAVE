@@ -19,14 +19,14 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 ## @ingroup Components-Energy-Distributors
 class HTS_DC_Dynamo_Basic(Energy_Component):
     """ Basic HTS Dynamo model for constant current DC coil operation at constant cryogenic temperature.
-    
+
         Assumptions:
         HTS Dynamo is operating at rated temperature and output current.
-        
+
         Source:
         None
     """
-    
+
     def __defaults__(self):
         """ This sets the default values.
     

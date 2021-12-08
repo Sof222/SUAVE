@@ -102,7 +102,7 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
         dynamo_esc                  = self.dynamo_esc               # HTS Dynamo speed controller
         cryocooler                  = self.cryocooler               # Rotor cryocoolers, powered by electricity
         heat_exchanger              = self.heat_exchanger           # Rotor cryocooling, powered by cryogen
-       
+        
         ambient_skin                = self.ambient_skin             # flag to indicate rotor skin temp
         rotor_surface_temp          = self.skin_temp                # Exterior temperature of the rotor
         cooling_share_cryogen       = self.cryogen_proportion       # Proportion of rotor cooling provided by cryogen
@@ -173,7 +173,7 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
 
         # Calculate the power required from the cryocoolers (if present)
         cryocooler_power = 0.0
-        
+
         if cooling_share_cryocooler != 0.0:
             cryocooler_load         = cooling_share_cryocooler * rotor_cryo_load
             cryocooler_power        = cryocooler.energy_calc(cryocooler_load, rotor.temperature, amb_temp)
@@ -194,7 +194,7 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
         results.vehicle_mass_rate   = fuel_mdot + (cryogen_mdot * (1.0-cryogen_is_fuel))
 
         # Pack up the mass flow rate components so they can be tracked.
-        results.vehicle_cryogen_rate   = cryogen_mdot
+        results.vehicle_additional_fuel_rate   = cryogen_mdot
         results.vehicle_fuel_rate      = fuel_mdot   
 
         return results

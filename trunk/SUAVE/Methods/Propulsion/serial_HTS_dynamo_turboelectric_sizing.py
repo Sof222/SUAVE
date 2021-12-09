@@ -23,10 +23,10 @@ from SUAVE.Core import Data
 from SUAVE.Methods.Power.Turboelectric.Sizing.initialize_from_power import initialize_from_power
 # from SUAVE.Methods.Cooling.Leads.copper_lead import initialize_copper_lead
 # from SUAVE.Methods.Cooling.Leads.copper_lead import Q_offdesign
-from SUAVE.Methods.Cooling.Cryocooler.Sizing.size_cryocooler import size_cryocooler
+
 
 ## @ingroup Methods-Propulsion
-def serial_hts_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan,mach_number = None, altitude = None, delta_isa = 0, conditions = None, cryo_cold_temp = 50.0, cryo_amb_temp = 300.0):  
+def serial_HTS_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan,mach_number = None, altitude = None, delta_isa = 0, conditions = None, cryo_cold_temp = 50.0, cryo_amb_temp = 300.0):  
     """
     creates and evaluates a ducted_fan network based on an atmospheric sizing condition
     creates and evaluates a serial hybrid network that includes a HTS motor driven ducted fan, turboelectric generator, and the required supporting equipment including cryogenic cooling and HTS dynamo current supply.
@@ -258,7 +258,7 @@ def serial_hts_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan,m
     cooling_power               = rotor_cooling_power + leads_cooling_power  # Cryocooler must cool both rotor and supply leads
     cryocooler_input_power      = 0.0
     if Turboelectric_HTS_Dynamo_Ducted_Fan.cryogen_proportion < 1.0:
-        size_cryocooler(cryocooler, cooling_power, cryo_cold_temp, cryo_amb_temp)
+        cryocooler.size_cryocooler(cooling_power, cryo_cold_temp, cryo_amb_temp)
         cryocooler_input_power  = cryocooler.rated_power
     rotor_power                 = ccs_input_power + cryocooler_input_power
 

@@ -34,7 +34,7 @@ class Cryocooler(Energy_Component):
         self.min_cryo_temp      =   0.0 
         self.ambient_temp       = 300.0
 
-    def energy_calc(self, cooling_power, cryo_temp, amb_temp):
+    def cryocooler_model(self, cooling_power, cryo_temp, amb_temp):
 
         """ Calculate the power required by the cryocooler based on the cryocooler type, the required cooling power, and the temperature conditions.
     
@@ -127,6 +127,36 @@ class Cryocooler(Energy_Component):
         self.rated_power              = input_power
 
         return [input_power, mass]
+
+    def size_cryocooler(self, max_power, cryo_temp, amb_temp=292.2):
+        """ Calculate the cryocooler mass.
+        
+        Assumptions:
+            See cryocooler_model
+            
+        Source: 
+            https://www.cryomech.com/cryocoolers/
+            
+        Inputs:
+            max_power -     cooling power required of the cryocooler                                [watts]
+            cryo_temp -     cryogenic output temperature required at sizing                         [kelvin]
+            amb_temp -      ambient temperature the cooler will reject heat to, defaults to 19C     [kelvin]
+            cooler_type -   cryocooler type used.   
+        
+        Outputs:
+            self.
+                mass -      mass of the cryocooler      [kg]
+                
+        Properties Used:
+            N/A
+        """ 
+
+        # Call the cryocooler model and run with the sizing parameters
+        output = self.cryocooler_model( max_power, cryo_temp, amb_temp)
+
+        # Pack up outputs
+        self.mass_properties.mass     = output[1]
+        self.rated_power              = output[0]
 
 
 

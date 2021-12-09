@@ -13,8 +13,8 @@ import SUAVE
 
 import numpy as np
 
-from SUAVE.Components.Energy.Networks.Turboelectric_HTS_Ducted_Fan import Turboelectric_HTS_Ducted_Fan   
-from SUAVE.Methods.Propulsion.serial_HTS_turboelectric_sizing import serial_HTS_turboelectric_sizing
+from SUAVE.Components.Energy.Networks.Turboelectric_HTS_Dynamo_Ducted_Fan import Turboelectric_HTS_Dynamo_Ducted_Fan   
+from SUAVE.Methods.Propulsion.serial_HTS_dynamo_turboelectric_sizing import serial_HTS_dynamo_turboelectric_sizing
 
 from SUAVE.Attributes.Gases import Air
 from SUAVE.Attributes.Solids.Copper import Copper
@@ -119,7 +119,7 @@ def energy_network():
     
     # Instantiate the Turboelectric HTS Ducted Fan Network 
     # This also instantiates the component parts of the efan network, then below each part has its properties modified so they are no longer the default properties as created here at instantiation. 
-    efan = Turboelectric_HTS_Ducted_Fan()
+    efan = Turboelectric_HTS_Dynamo_Ducted_Fan()
     efan.tag = 'turbo_fan'
 
     # Outline of Turboelectric drivetrain components. These are populated below.
@@ -302,25 +302,12 @@ def energy_network():
 
     # ------------------------------------------------------------------
     #  Component 6 - HTS Dynamo supplying the rotor
-    
-    efan.lead = SUAVE.Components.Energy.Distributors.Cryogenic_Lead()
-    efan.lead.tag = 'lead'
-    copper = Copper()
-    efan.lead.cold_temp                 = efan.rotor.temperature   # [K]
-    efan.lead.hot_temp                  = efan.rotor.skin_temp     # [K]
-    efan.lead.current                   = efan.rotor.current       # [A]
-    efan.lead.length                    = 0.3                      # [m]
-    efan.lead.material                  = copper
-    efan.leads                          = efan.ducted_fan.number_of_engines * 2.0      # Each motor has two leads to make a complete circuit
+    efan.hts_dynamo         = SUAVE.Components.Energy.Distributors.HTS_DC_Dynamo_Basic()
 
-    # ------------------------------------------------------------------
+        # ------------------------------------------------------------------
     #  Component 7 -  HTS Dynamo speed controller
 
-    efan.ccs = SUAVE.Components.Energy.Distributors.HTS_DC_Supply()
-    efan.ccs.tag = 'ccs'
-
-    efan.ccs.efficiency             =   0.95               # Siemens SD104 SiC Power Electronics reported to be this efficient
-
+    efan.dynamo_esc        = SUAVE.Components.Energy.Distributors.HTS_Dynamo_Supply()
 
     # ------------------------------------------------------------------
     #  Component 8 - Cryocooler, to cool the HTS Rotor
@@ -352,7 +339,7 @@ def energy_network():
 
     # Size powertrain components
     ducted_fan_sizing(efan.ducted_fan,mach_number,altitude)
-    serial_HTS_turboelectric_sizing(efan,mach_number,altitude, cryo_cold_temp = cryo_temp, cryo_amb_temp = amb_temp)
+    serial_HTS_dynamo_turboelectric_sizing(efan,mach_number,altitude, cryo_cold_temp = cryo_temp, cryo_amb_temp = amb_temp)
 
     print("Design thrust ",efan.ducted_fan.design_thrust)
     
@@ -371,9 +358,9 @@ def energy_network():
     # Specify the expected values
     expected = Data()
     expected.thrust = 47826.12361690928
-    expected.mdot = 0.807913394579505
-    expected.mdot_fuel = 0.79080567
-    expected.mdot_additional_fuel = 0.01710773
+    expected.mdot = 0.8081491823132513
+    expected.mdot_fuel = 0.79224536
+    expected.mdot_additional_fuel = 0.01590383
     
     #error data function
     error =  Data()

@@ -249,21 +249,9 @@ def plot_fuel_use_animated(results, line_color = 'bo-', save_figure = False, sav
     prev_seg_fuel = 0
     prev_seg_extra_fuel= 0
 
-
-    #values = np.zeros(shape=(3, len(results.segments)))
-
-    #time_values = np.zeros(shape = (1, len(results.segments[0].conditions.frames.inertial.time[:,0]) * len(results.segments) ))
-
-    #alt_fuel_values = np.zeros(shape = (1, len(results.segments[0].conditions.frames.inertial.time[:,0])))
-
-    #fuel_values = np.zeros(shape = (1, len(results.segments[0].conditions.frames.inertial.time[:,0])))
-
-    
     segment  = results.segments[0]
+
     time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
-
-    print("time = ", time)
-
     time_values =  time.tolist()
 
     alt_fuel_values = np.negative(results.segments[0].conditions.weights.additional_fuel_mass[:,0]).tolist()
@@ -301,9 +289,7 @@ def plot_fuel_use_animated(results, line_color = 'bo-', save_figure = False, sav
 
     df = pd.DataFrame(data, index=time_values)
 
-    print(df)
-
-    df.index = pd.to_timedelta(df.index, unit='m')
+    df.index = pd.to_timedelta(df.index)
 
     print(df)
 
@@ -320,20 +306,23 @@ def plot_fuel_use_animated(results, line_color = 'bo-', save_figure = False, sav
         for i in range(0,3):
             p[i].set_color(color[i]) #set the colour of each curve
 
-    from matplotlib.animation import FuncAnimation, PillowWriter
+    from matplotlib import animation
 
+    plt.ticklabel_format(useOffset=False, style='plain')
 
+    import matplotlib as mpl 
 
-    ani = FuncAnimation(fig, buildmebarchart,interval=100, repeat=True, frames=100)
+    mpl.rcParams['animation.ffmpeg_path'] = r'C:\Users\sofie\ffmpeg-4.4.1-essentials_build\ffmpeg-4.4.1-essentials_build\bin\ffmpeg.exe'
 
-    
+    ani = animation.FuncAnimation(fig, buildmebarchart,interval=100, repeat=True, frames=10000)
+
+    f = r"C:\Users\sofie\OneDrive - Victoria University of Wellington - STAFF\Desktop\SUAVE - GIT\SUAVE\regression\scripts\turboelectric_HTS_ducted_fan_network\fuel.mp4"
+
     #ani.save('filename.mp4')
-    #plt.rcParams["animation.convert_path"] = "C:\Program Files\ImageMagick-7.1.0-Q16-HDRI\magick.exe"
+    writervideo = animation.FFMpegWriter(fps=60)
+    ani.save(f, writer=writervideo)
 
-    #ani.save('myAnimation.gif', writer="imagemagick", extra_args="convert")
 
-    #ani.save("TLI.gif", dpi=300, writer=PillowWriter(fps=25))
-    
     plt.show()
         
     return

@@ -135,9 +135,11 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         # Total change in aircraft mass. Represents fuel in normal (non-additional fuel) case
         Fuel    = Wi-Wf
 
-        # Additional fuel weight differences
+        # Additional fuel weight difference
         ALT_FUEL    = WCi - WCf
-        FUEL_A  = WFi - WFf
+
+        #Fuel weight differences
+        FUEL_MAIN  = WFi - WFf
 
         # Only show additional fuel if used
         # Strings for when there is no additional fuel 
@@ -155,7 +157,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
             add_fuel_str =  str('%8.2f'   % ALT_FUEL)     + '|'
             
             # Replace total mass difference with the fuel mass difference
-            Fuel = FUEL_A
+            Fuel = FUEL_MAIN
             Fuel_str=   str('%8.2f'   % Fuel)     + '|'
 
 
@@ -193,7 +195,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         fid.write( Segment_str+HPi_str+HPf_str+Wi_str+Wf_str+Dist_str+T_str+KCASi_str+KCASf_str+Mi_str+Mf_str+Fuel_str+add_fuel_str+'\n')
         
         # Sum fuel and additional fuel usage for printing summary once mission complete
-        total_fuel      = total_fuel + FUEL_A + ALT_FUEL
+        total_fuel      = total_fuel + FUEL_MAIN
         total_additional_fuel   = total_additional_fuel + ALT_FUEL
         
         i = i+1
@@ -213,13 +215,13 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
     elif SI:
         fid.write(' Total Range         (km) ........... ' + str('%9.0f' % TotalRange) + '\n')
 
-    fid.write(' Total Fuel          (kg) ........... '+ str(TotalFuel)+'\n')
+    fid.write(' Total Main Fuel          (kg) ........... '+ str(TotalFuel)+'\n')
     
     # additional fuel use results
     if results.segments[0].conditions.weights.has_additional_fuel:
         fid.write(' Total Additional Fuel       (kg) ........... '+ str(total_additional_fuel)+'\n')
-
-
+        fid.write(' Total Fuel                  (kg) ........... '+ str(total_additional_fuel + TotalFuel)+'\n')
+    
     fid.write(' Total Time  (hh:mm) ........ '+ time.strftime('    %H:%M', time.gmtime(TotalTime))+'\n')
     # Print timestamp
     fid.write(2*'\n'+ 43*'-'+ '\n' + datetime.datetime.now().strftime(" %A, %d. %B %Y %I:%M:%S %p"))

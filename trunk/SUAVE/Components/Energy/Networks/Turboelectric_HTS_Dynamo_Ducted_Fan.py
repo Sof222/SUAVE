@@ -119,6 +119,7 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
         # Solve the thrust using the other network (i.e. the ducted fan network)
         results = ducted_fan.evaluate_thrust(state)
 
+
         # Calculate the required electric power to be supplied to the ducted fan motor by dividing the shaft power required by the ducted fan by the efficiency of the ducted fan motor
         # Note here that the efficiency must not include the efficiency of the rotor and rotor supply components as these are handled separately below.
         # powersupply.inputs.power_in = propulsor.thrust.outputs.power/motor.motor_efficiency
@@ -139,7 +140,6 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
         # Calculate the power that must be supplied to the rotor. This also calculates the cryo load per rotor and stores this value as rotor.outputs.cryo_load
         single_rotor_power  = rotor.power(rotor_current, skin_temp)
         rotor_power_in      = single_rotor_power * ducted_fan.number_of_engines
-
 
         # --------  Current Supply Dynamo --------------------
 

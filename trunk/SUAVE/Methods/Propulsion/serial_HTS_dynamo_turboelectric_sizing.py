@@ -226,20 +226,6 @@ def serial_HTS_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan,m
     HTS_current                 = rotor.current
     rotor_input_power           = rotor.power(HTS_current, rotor.skin_temp)
 
-    # -------------- Current Supply Leads ----------------
-    # # initialize copper lead optimses the leads for the conditions set elsewhere, i.e. the lead is not sized here as it should be sized for the maximum ambient temperature
-    # initialize_copper_lead(current_lead)
-    # current_lead_powers         = Q_offdesign(current_lead, HTS_current)
-    # lead_power                  = current_lead_powers[1]
-    # leads_power                 = 2 * lead_power             # multiply lead loss by number of leads to get total loss
-    # ccs_output_power            = leads_power + rotor_input_power
-    # ccs_input_power             = ccs.power(HTS_current, ccs_output_power)
-    # # The cryogenic components are also part of the rotor power stream
-    # lead_cooling_power          = current_lead_powers[0]
-    # leads_cooling_power         = 2 * lead_cooling_power   # multiply lead cooling requirement by number of leads to get total cooling requirement
-    # total_lead_cooling_power    = leads_cooling_power * number_of_engines
-    # -------------- Current Supply Leads end ------------
-
 
     # -------------- Current Supply Dynamo ---------------
     # Here the HTS dynamo could be sized, however for now this just calculates the heating and power used by the basic dynamo as there is no sizing required for the basic dynamo model that has constant performance

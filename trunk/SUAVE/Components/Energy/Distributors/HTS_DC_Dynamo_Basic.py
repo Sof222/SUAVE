@@ -48,7 +48,7 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
         
         self.efficiency             =   0.1
         self.mass_properties.mass   = 100.0     # [kg]
-        self.rated_current          = 100.0     # [A]
+        self.rated_current          = 1000.0     # [A]
         self.rated_RPM              = 100.0     # [RPM]
         self.rated_temp             =  77.0     # [K]
     
@@ -113,3 +113,27 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
         # Return basic results.
         return [power_in, cryo_load]
 
+    def efficiency_curve(self, x):
+
+        """ This sets the default values.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """     
+
+        a = ( self.efficiency ) / np.square(self.rated_current) #one point on the graph is assumed to be  (0, 2 * current), 0  = a (current ^ 2) + efficiency 
+        
+        return   -a * (np.square( x - self.rated_current) ) +  self.efficiency # y = a(x - current)^2 + efficieny 
+            

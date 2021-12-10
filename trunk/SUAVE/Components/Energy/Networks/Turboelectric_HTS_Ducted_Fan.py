@@ -79,8 +79,10 @@ class Turboelectric_HTS_Ducted_Fan(Network):
             state [state()]
     
             Outputs:
-            results.thrust_force_vector [newtons]
-            results.vehicle_mass_rate   [kg/s]
+            results.thrust_force_vector             [newtons]
+            results.vehicle_mass_rate               [kg/s]
+            results.vehicle_additional_fuel_rate    [kg/s]
+            results.vehicle_fuel_rate               [kg/s]
     
             Properties Used:
             Defaulted values
@@ -112,7 +114,6 @@ class Turboelectric_HTS_Ducted_Fan(Network):
 
         amb_temp        = conditions.freestream.temperature
 
-
         # Solve the thrust using the other network (i.e. the ducted fan network)
         results = ducted_fan.evaluate_thrust(state)
 
@@ -138,17 +139,16 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         single_rotor_power  = rotor.power(rotor_currents, skin_temp)
         rotor_power_in      = single_rotor_power * ducted_fan.number_of_engines
 
-
         # -------- Rotor Current Supply ---------------------------------
 
         # Calculate the power loss in the rotor current supply leads.
         # The cryogenic loading due to the leads is also calculated here.
 
-        lead_power =  np.where(rotor_currents[:,0] > 0, lead.Q_offdesign(rotor_currents[:,0])[:,1], 0.0 )
-        lead_cryo_load =  np.where(rotor_currents[:,0] > 0,  lead.Q_offdesign(rotor_currents[:,0])[:,0], lead.unpowered_Q )
+        lead_power      =  np.where(rotor_currents[:,0] > 0, lead.Q_offdesign(rotor_currents[:,0])[:,1], 0.0 )
+        lead_cryo_load  =  np.where(rotor_currents[:,0] > 0,  lead.Q_offdesign(rotor_currents[:,0])[:,0], lead.unpowered_Q )
 
-        lead_power = np.reshape(lead_power, (len(lead_power),1))
-        lead_cryo_load = np.reshape(lead_cryo_load, (len(lead_power),1))
+        lead_power      = np.reshape(lead_power, (len(lead_power),1))
+        lead_cryo_load  = np.reshape(lead_cryo_load, (len(lead_power),1))
 
 
         # Multiply the lead powers by the number of leads, this is typically twice the number of motors
@@ -198,9 +198,7 @@ class Turboelectric_HTS_Ducted_Fan(Network):
 
         # Pack up the mass flow rate components so they can be tracked.
         results.vehicle_additional_fuel_rate   = cryogen_mdot
-        results.vehicle_fuel_rate      = fuel_mdot   
-
-
+        results.vehicle_fuel_rate              = fuel_mdot   
 
         return results
             

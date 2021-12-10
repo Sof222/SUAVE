@@ -108,6 +108,8 @@ def update_weights(segment):
         Outputs:
         segment.state.conditions:
             weights.total_mass                   [kilograms]
+            weights.fuel_mass                    [kilograms]
+            weights.additional_fuel_mass         [kilograms]
             frames.inertial.gravity_force_vector [kilograms]
 
         Properties Used:

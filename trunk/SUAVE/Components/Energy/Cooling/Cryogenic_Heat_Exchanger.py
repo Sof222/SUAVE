@@ -87,7 +87,7 @@ class Cryogenic_Heat_Exchanger(Energy_Component):
         amb_pressure    = conditions.freestream.pressure
 
         # If the heat exchanger does not vent to ambient, set the system pressure.
-        vent_pressure       = pressure
+        vent_pressure   = pressure
 
         # calculate the cryogen mass flow
         mdot = Coolant_use(cryogen,temp_in,temp_out,cooling_power,vent_pressure)

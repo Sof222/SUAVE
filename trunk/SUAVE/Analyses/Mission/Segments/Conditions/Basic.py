@@ -70,7 +70,7 @@ class Basic(Conditions):
         self.frames.inertial.time                 = ones_1col * 0
         
         # body conditions
-        self.frames.body = Conditions()        
+        self.frames.body                          = Conditions()        
         self.frames.body.inertial_rotations       = ones_3col * 0
         self.frames.body.transform_to_inertial    = np.empty([0,0,0])
         

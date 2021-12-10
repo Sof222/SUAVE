@@ -54,7 +54,7 @@ def main():
     plot_flight_conditions(results)
 
     """
-    # Compare Plot for Fuel Use  
+    # Plot Fuel Use
     """
     plot_fuel_use(results)
 

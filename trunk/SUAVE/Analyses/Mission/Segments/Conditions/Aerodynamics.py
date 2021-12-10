@@ -117,13 +117,13 @@ class Aerodynamics(Basic):
         self.stability.dynamic.yaw_rate      = ones_1col * 0     
         
         # aerodynamic derivative conditions
-        self.aero_derivatives = Conditions()
-        self.aero_derivatives.dCL_dAlpha = ones_1col * 0
-        self.aero_derivatives.dCD_dAlpha = ones_1col * 0
-        self.aero_derivatives.dCL_dBeta = ones_1col * 0
-        self.aero_derivatives.dCD_dBeta = ones_1col * 0
-        self.aero_derivatives.dCL_dV = ones_1col * 0
-        self.aero_derivatives.dCD_dV = ones_1col * 0
+        self.aero_derivatives               = Conditions()
+        self.aero_derivatives.dCL_dAlpha    = ones_1col * 0
+        self.aero_derivatives.dCD_dAlpha    = ones_1col * 0
+        self.aero_derivatives.dCL_dBeta     = ones_1col * 0
+        self.aero_derivatives.dCD_dBeta     = ones_1col * 0
+        self.aero_derivatives.dCL_dV        = ones_1col * 0
+        self.aero_derivatives.dCD_dV        = ones_1col * 0
         self.aero_derivatives.dCL_dThrottle = ones_1col * 0
         self.aero_derivatives.dCD_dThrottle = ones_1col * 0
 

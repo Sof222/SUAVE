@@ -49,7 +49,7 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
             Properties Used:
             N/A
         """         
-        
+
         self.ducted_fan                 = None  # i.e. the ducted fan (not including the motor).
         self.motor                      = None  # the motor that drives the fan, which may be partial or fully HTS.
         self.powersupply                = None  # i.e. the turboelectric generator, the generator of which may be partial or fully HTS
@@ -61,14 +61,15 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
         self.heat_exchanger             = None  # heat exchanger that cools the rotor using cryogen
         self.cryogen_proportion         = 1.0   # Proportion of cooling to be supplied by the cryogenic heat exchanger, rather than by the cryocooler
         self.number_of_engines          = 1.0   # number of ducted_fans, also the number of propulsion motors.
+        self.has_additional_fuel_type   = True
 
         self.engine_length              = 1.0
         self.bypass_ratio               = 0.0
         self.areas                      = Data()
         self.tag                        = 'Network'
 
-        self.ambient_skin               = False         # flag to set whether the outer surface of the rotor is amnbient temperature or not.
-        self.skin_temp                  = 300.0     # [K]  if self.ambient_skin is false, this is the temperature of the rotor skin. 
+        self.ambient_skin               = False  # flag to set whether the outer surface of the rotor is amnbient temperature or not.
+        self.skin_temp                  = 300.0  # [K]  if self.ambient_skin is false, this is the temperature of the rotor skin. 
     
     # manage process with a driver function
     def evaluate_thrust(self, state):
@@ -90,7 +91,7 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
             Properties Used:
             Defaulted values
         """         
-        
+
         # unpack
 
         ducted_fan                  = self.ducted_fan               # Electric ducted fan(s) excluding motor
@@ -135,7 +136,10 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
             skin_temp[:]    = rotor_surface_temp 
 
         # If the rotor current is to be varied depending on the motor power here is the place to do it. For now the rotor current is set as constant.
-        rotor_current       = np.full_like(motor_power_in, rotor.current)
+        #rotor_current       = np.full_like(motor_power_in, 1050)
+        rotor_current= np.linspace(1, 1750, num = len(motor_power_in))
+        rotor_current       = rotor_current.reshape(len(motor_power_in),1)
+        print("rotor fill = ", rotor_current)
 
         # Calculate the power that must be supplied to the rotor. This also calculates the cryo load per rotor and stores this value as rotor.outputs.cryo_load
         single_rotor_power  = rotor.power(rotor_current, skin_temp)
@@ -148,7 +152,7 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
         dynamo_shaft_power      = dynamo_powers[0]
 
         # Calculate the power used by the HTS Dynamo powertrain, i.e. the esc, motor, and gearbox.
-        dynamo_esc_power        = dynamo_esc.power_in(dynamo_shaft_power)
+        dynamo_esc_power        = dynamo_esc.power_in(hts_dynamo, dynamo_shaft_power, rotor_current)
 
         # Retreive the cryogenic load due to the dynamo
         dynamo_cryo_load        = dynamo_powers[1]
@@ -195,7 +199,7 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
 
         # Pack up the mass flow rate components so they can be tracked.
         results.vehicle_additional_fuel_rate   = cryogen_mdot
-        results.vehicle_fuel_rate      = fuel_mdot   
+        results.vehicle_fuel_rate              = fuel_mdot   
 
         return results
             

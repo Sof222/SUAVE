@@ -20,7 +20,7 @@ from SUAVE.Core import Data, Units
 
 from SUAVE.Plots.Performance.Mission_Plots import *
 
-from SUAVE.Methods.Propulsion.serial_HTS_turboelectric_sizing import serial_HTS_turboelectric_sizing
+from SUAVE.Methods.Propulsion.serial_HTS_dynamo_turboelectric_sizing import serial_HTS_dynamo_turboelectric_sizing
 
 from SUAVE.Input_Output.Results import  *
 
@@ -28,7 +28,7 @@ from SUAVE.Attributes.Solids.Copper import Copper
 
 from SUAVE.Attributes.Gases import Air
 
-from SUAVE.Components.Energy.Networks.Turboelectric_HTS_Ducted_Fan import Turboelectric_HTS_Ducted_Fan   
+from SUAVE.Components.Energy.Networks.Turboelectric_HTS_Dynamo_Ducted_Fan import Turboelectric_HTS_Dynamo_Ducted_Fan   
 
 from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
 
@@ -60,7 +60,7 @@ def main():
 
     plot_fuel_use(results)
 
-    plot_fuel_use_animated(results)
+    #plot_fuel_use_animated(results)
     
     #print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
 
@@ -225,18 +225,18 @@ def vehicle_setup():
     # ------------------------------------------------------------------        
     #   Main Wing
     # ------------------------------------------------------------------        
-    
+
     # This main wing is approximated as a simple trapezoid. A segmented wing can also be created if
     # desired. Segmented wings appear in later tutorials, and a version of the 737 with segmented
     # wings can be found in the SUAVE testing scripts.
-    
+
     # SUAVE allows conflicting geometric values to be set in terms of items such as aspect ratio
     # when compared with span and reference area. Sizing scripts may be used to enforce 
     # consistency if desired.
-    
+
     wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
-    
+
     wing.aspect_ratio            = 10.18
     # Quarter chord sweep is used as the driving sweep in most of the low fidelity analysis methods.
     # If a different known value (such as leading edge sweep) is given, it should be converted to
@@ -262,16 +262,16 @@ def vehicle_setup():
     wing.high_lift               = True
     # The dynamic pressure ratio is used in stability calculations
     wing.dynamic_pressure_ratio  = 1.0
-    
+
     # ------------------------------------------------------------------
     #   Main Wing Control Surfaces
     # ------------------------------------------------------------------
-    
+
     # Information in this section is used for high lift calculations and when conversion to AVL
     # is desired.
-    
+
     # Deflections will typically be specified separately in individual vehicle configurations.
-    
+
     flap                       = SUAVE.Components.Wings.Control_Surfaces.Flap() 
     flap.tag                   = 'flap' 
     flap.span_fraction_start   = 0.20 
@@ -281,7 +281,7 @@ def vehicle_setup():
     flap.configuration_type    = 'double_slotted'
     flap.chord_fraction        = 0.30   
     wing.append_control_surface(flap)   
-        
+
     slat                       = SUAVE.Components.Wings.Control_Surfaces.Slat() 
     slat.tag                   = 'slat' 
     slat.span_fraction_start   = 0.324 
@@ -289,7 +289,7 @@ def vehicle_setup():
     slat.deflection            = 0.0 * Units.degrees
     slat.chord_fraction        = 0.1  	 
     wing.append_control_surface(slat)  
-        
+
     aileron                       = SUAVE.Components.Wings.Control_Surfaces.Aileron() 
     aileron.tag                   = 'aileron' 
     aileron.span_fraction_start   = 0.7 
@@ -297,17 +297,17 @@ def vehicle_setup():
     aileron.deflection            = 0.0 * Units.degrees
     aileron.chord_fraction        = 0.16    
     wing.append_control_surface(aileron)    
-    
+
     # Add to vehicle
     vehicle.append_component(wing)    
 
     # ------------------------------------------------------------------        
     #  Horizontal Stabilizer
     # ------------------------------------------------------------------        
-    
+
     wing = SUAVE.Components.Wings.Horizontal_Tail()
     wing.tag = 'horizontal_stabilizer'
-    
+
     wing.aspect_ratio            = 6.16     
     wing.sweeps.quarter_chord    = 40.0 * Units.deg
     wing.thickness_to_chord      = 0.08
@@ -426,7 +426,7 @@ def vehicle_setup():
     
     # Instantiate the Turboelectric HTS Ducted Fan Network 
     # This also instantiates the component parts of the efan network, then below each part has its properties modified so they are no longer the default properties as created here at instantiation. 
-    efan = Turboelectric_HTS_Ducted_Fan()
+    efan = Turboelectric_HTS_Dynamo_Ducted_Fan()
     efan.tag = 'turbo_fan'
 
     # Outline of Turboelectric drivetrain components. These are populated below.
@@ -454,6 +454,7 @@ def vehicle_setup():
     efan.ducted_fan.number_of_engines  = 12.
     efan.number_of_engines             = efan.ducted_fan.number_of_engines
     efan.ducted_fan.engine_length      = 1.1            * Units.meter
+
 
     # Positioning variables for the propulsor locations - 
     xStart = 15.0
@@ -540,10 +541,10 @@ def vehicle_setup():
     # To compute the thrust
     thrust = SUAVE.Components.Energy.Processes.Thrust()       
     thrust.tag ='compute_thrust'
-
+ 
     # total design thrust (includes all the propulsors)
     thrust.total_design             = 2.*24000. * Units.N #Newtons
-
+ 
     # design sizing conditions
     altitude      = 35000.0*Units.ft
     mach_number   =     0.78 
@@ -607,25 +608,14 @@ def vehicle_setup():
     efan.rotor.R_value                  =   125.0                           # [K.m2/W]  2.0 W/m2 based on experience at Robinson Research
 
     # ------------------------------------------------------------------
-    #  Component 6 - Copper Supply Leads of propulsion motor rotors
-    
-    efan.lead = SUAVE.Components.Energy.Distributors.Cryogenic_Lead()
-    efan.lead.tag = 'lead'
-    copper = Copper()
-    efan.lead.cold_temp                 = efan.rotor.temperature   # [K]
-    efan.lead.hot_temp                  = efan.rotor.skin_temp     # [K]
-    efan.lead.current                   = efan.rotor.current       # [A]
-    efan.lead.length                    = 0.3                      # [m]
-    efan.lead.material                  = copper
-    efan.leads                          = efan.ducted_fan.number_of_engines * 2.0      # Each motor has two leads to make a complete circuit
+    #  Component 6 - HTS Dynamo supplying the rotor
+    efan.hts_dynamo         = SUAVE.Components.Energy.Distributors.HTS_DC_Dynamo_Basic()
 
-    # ------------------------------------------------------------------
-    #  Component 7 - Rotor Constant Current Supply (CCS)
-    
-    efan.ccs = SUAVE.Components.Energy.Distributors.HTS_DC_Supply()
-    efan.ccs.tag = 'ccs'
+        # ------------------------------------------------------------------
+    #  Component 7 -  HTS Dynamo speed controller
 
-    efan.ccs.efficiency             =   0.95               # Siemens SD104 SiC Power Electronics reported to be this efficient
+    efan.dynamo_esc        = SUAVE.Components.Energy.Distributors.HTS_Dynamo_Supply()
+
     # ------------------------------------------------------------------
     #  Component 8 - Cryocooler, to cool the HTS Rotor
  
@@ -651,12 +641,13 @@ def vehicle_setup():
     cryo_temp       =  50.0     # [K]
     amb_temp        = 300.0     # [K]
 
-    # ------------------------------------------------------------------
     # Powertrain Sizing
 
-    ducted_fan_sizing(efan.ducted_fan,mach_number,altitude)
 
-    serial_HTS_turboelectric_sizing(efan,mach_number,altitude, cryo_cold_temp = cryo_temp, cryo_amb_temp = amb_temp)
+    # Size powertrain components
+    ducted_fan_sizing(efan.ducted_fan,mach_number,altitude)
+    serial_HTS_dynamo_turboelectric_sizing(efan,mach_number,altitude, cryo_cold_temp = cryo_temp, cryo_amb_temp = amb_temp)
+
 
 
     # add turboelectric network to the vehicle 

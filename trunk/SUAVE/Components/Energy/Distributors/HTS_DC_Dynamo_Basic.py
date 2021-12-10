@@ -11,6 +11,7 @@
 import SUAVE
 import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
+import matplotlib.pyplot as plt
 
 # ----------------------------------------------------------------------
 #  HTS DC Dynamo Class
@@ -77,9 +78,15 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
 
         """
         # Unpack
-        efficiency              = self.efficiency
         rated_current           = self.rated_current
         rated_temp              = self.rated_temp
+
+        #Adjust efficiency according to the rotor current 
+        efficiency = self.efficiency_curve(hts_current)
+
+        plt.plot(hts_current, efficiency)
+
+        #print("efficiency = ", efficiency, ", current = ", hts_current)
 
         # Create output arrays. The hts dynamo input power is assumed zero if the output power is zero, this may not be true for some dynamo configurations however the power required for zero output power will be very low.
         # Similarly, the cryo load will be zero if no dynamo effect is occuring.
@@ -99,13 +106,13 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
         # Iterate through the operating condition arrays
         for index, power in np.ndenumerate(power_out):
             # In this basic model the current and operating temperature are assumed constant, so warn if this is not true
-            if hts_current[index] != rated_current:
-                print("Warning, HTS Dynamo not operating at rated current, input power underestimated.")
-            if cryo_temp[index] != rated_temp:
-                print("Warning, HTS dynamo not operating at rated temperature. Ensure operating temperature is below T_c.")
+            #if hts_current[index] != rated_current:
+                #print("Warning, HTS Dynamo not operating at rated current, input power underestimated.")
+            #if cryo_temp[index] != rated_temp:
+                #print("Warning, HTS dynamo not operating at rated temperature. Ensure operating temperature is below T_c.")
 
             # In this basic model, assume dynamo is operating at the rated efficiency.
-            power_in[index] = power/efficiency
+            power_in[index] = power/efficiency[index]
 
             # Calculate the dynamo losses. This loss will directly heat the cryogenic environment.
             cryo_load[index] = power_in[index] - power
@@ -122,6 +129,8 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
 
         Source:
         N/A
+
+        LINK TO KENTS STUFF
 
         Inputs:
         None

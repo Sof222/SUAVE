@@ -26,7 +26,7 @@ from SUAVE.Methods.Power.Turboelectric.Sizing.initialize_from_power import initi
 
 
 ## @ingroup Methods-Propulsion
-def serial_HTS_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan,mach_number = None, altitude = None, delta_isa = 0, conditions = None, cryo_cold_temp = 50.0, cryo_amb_temp = 300.0):  
+def serial_HTS_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan, mach_number = None, altitude = None, delta_isa = 0, conditions = None, cryo_cold_temp = 50.0, cryo_amb_temp = 300.0):  
     """
     creates and evaluates a ducted_fan network based on an atmospheric sizing condition
     creates and evaluates a serial hybrid network that includes a HTS motor driven ducted fan, turboelectric generator, and the required supporting equipment including cryogenic cooling and HTS dynamo current supply.
@@ -233,7 +233,7 @@ def serial_HTS_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan,m
     dynamo_powers               = hts_dynamo.shaft_power(cryo_cold_temp, HTS_current, rotor_input_power)
     dynamo_input_power          = dynamo_powers[0]
     hts_dynamo_cooling_power    = dynamo_powers[1]
-    dynamo_esc_input_power      = dynamo_esc.power_in(dynamo_input_power)
+    dynamo_esc_input_power      = dynamo_esc.power_in(hts_dynamo, dynamo_input_power, HTS_current)
     # Rename dynamo cooling requirement as lead cooling requirement in order to limit code changes compared to non-dynamo powertrain model
     leads_cooling_power         = hts_dynamo_cooling_power
     ccs_input_power             = dynamo_esc_input_power

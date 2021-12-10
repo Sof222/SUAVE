@@ -137,8 +137,9 @@ class Container(Physical_Component.Container):
                     results.vehicle_fuel_rate             =  0.*ones_row(1)    
 
             results_p = net.evaluate_thrust(state) 
-            
+
             for key in results.keys():
+                
                 results[key] += results_p[key]
 
         return results

@@ -291,7 +291,7 @@ def plot_fuel_use_animated(results, line_color = 'bo-', save_figure = False, sav
 
     df.index = pd.to_timedelta(df.index)
 
-    print(df)
+    #print(df)
 
     color = ['red', 'green', 'blue']
     fig = plt.figure()
@@ -300,9 +300,12 @@ def plot_fuel_use_animated(results, line_color = 'bo-', save_figure = False, sav
     plt.ylabel('Fuel (kg)')
     plt.xlabel('Time (min)')
 
+    #print("final = ", df.values)
+
     def buildmebarchart(i):
         plt.legend(df.columns)
         p = plt.plot(df[:i].index, df[:i].values, 'o') #note it only returns the dataset, up to the point i
+        print("time , " , df[:i].index)
         for i in range(0,3):
             p[i].set_color(color[i]) #set the colour of each curve
 
@@ -314,13 +317,13 @@ def plot_fuel_use_animated(results, line_color = 'bo-', save_figure = False, sav
 
     mpl.rcParams['animation.ffmpeg_path'] = r'C:\Users\sofie\ffmpeg-4.4.1-essentials_build\ffmpeg-4.4.1-essentials_build\bin\ffmpeg.exe'
 
-    ani = animation.FuncAnimation(fig, buildmebarchart,interval=100, repeat=True, frames=100)
+    ani = animation.FuncAnimation(fig, buildmebarchart,interval=100, repeat=True, frames=300)
 
     f = r"C:\Users\sofie\OneDrive - Victoria University of Wellington - STAFF\Desktop\SUAVE - GIT\SUAVE\regression\scripts\turboelectric_HTS_ducted_fan_network\fuel.mp4"
 
     #ani.save('filename.mp4')
-    writervideo = animation.FFMpegWriter(fps=5)
-    ani.save(f, writer=writervideo)
+    #writervideo = animation.FFMpegWriter(fps=5)
+    #ani.save(f, writer=writervideo)
     print("Finished saving!")
 
     plt.show()

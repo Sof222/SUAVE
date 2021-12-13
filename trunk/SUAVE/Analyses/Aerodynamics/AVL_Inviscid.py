@@ -422,12 +422,8 @@ class AVL_Inviscid(Aerodynamics):
         
         for wing in self.geometry.wings: # this parses through the wings to determine how many control surfaces does the vehicle have 
             if wing.control_surfaces:
-<<<<<<< HEAD
-                wing = populate_control_sections (wing)     
-=======
                 control_surfaces = True 
                 wing = populate_control_sections(wing)     
->>>>>>> develop
                 num_cs_on_wing = len(wing.control_surfaces)
                 num_cs +=  num_cs_on_wing
                 for cs in wing.control_surfaces:

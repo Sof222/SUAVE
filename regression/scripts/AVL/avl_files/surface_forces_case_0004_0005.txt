@@ -6,15 +6,6 @@
      Xref =     15.3099   Yref =    0.0000   Zref =   -0.4802
 
  n      Area      CL      CD      Cm      CY      Cn      Cl     CDi     CDv
-<<<<<<< HEAD:regression/scripts/AVL/avl_files/surface_forces_case_04_05.txt
- 1    63.969  0.4016  0.0143 -0.3631 -0.0223 -0.0075 -0.0786  0.0143  0.0000   main_wing
- 2    63.969  0.4016  0.0143 -0.3631  0.0223  0.0075  0.0786  0.0143  0.0000   main_wing (YDUP)
- 3    20.745  0.0426  0.0033 -0.2083 -0.0068  0.0038 -0.0045  0.0033  0.0000   horizontal_stabilizer
- 4    20.745  0.0426  0.0033 -0.2083  0.0068 -0.0038  0.0045  0.0033  0.0000   horizontal_stabilizer (YDUP)
- 5    34.910  0.0000 -0.0000 -0.0000  0.0000 -0.0000  0.0000 -0.0000  0.0000   vertical_stabilizer
- 6   123.841  0.0107 -0.0002  0.0657  0.0000 -0.0000  0.0000 -0.0002  0.0000   fuselage_horizontal
- 7   123.841  0.0000  0.0000 -0.0000  0.0000 -0.0000 -0.0000  0.0000  0.0000   fuselage_vertical
-=======
  1    63.969  0.4053  0.0139 -0.3657 -0.0222 -0.0076 -0.0794  0.0139  0.0000   main_wing
  2    63.969  0.4053  0.0139 -0.3657  0.0222  0.0076  0.0794  0.0139  0.0000   main_wing (YDUP)
  3    20.745  0.0422  0.0033 -0.2068 -0.0068  0.0037 -0.0044  0.0033  0.0000   horizontal_stabilizer
@@ -22,22 +13,14 @@
  5    34.910  0.0000 -0.0000 -0.0000  0.0000 -0.0000  0.0000 -0.0000  0.0000   vertical_stabilizer
  6   123.841  0.0107 -0.0002  0.0657  0.0000 -0.0000  0.0000 -0.0002  0.0000   fuselage_horizontal
  7   123.841 -0.0000  0.0000  0.0000  0.0000 -0.0000 -0.0000  0.0000  0.0000   fuselage_vertical
->>>>>>> develop:regression/scripts/AVL/avl_files/surface_forces_case_0004_0005.txt
 
  Surface Forces (referred to Ssurf, Cave about root LE on hinge axis)
 
    n     Ssurf      Cave       cl       cd      cdv    cm_LE
-<<<<<<< HEAD:regression/scripts/AVL/avl_files/surface_forces_case_04_05.txt
-   1    63.969     3.715   0.7851   0.0278   0.0000   0.0000  main_wing
-   2    63.969     3.715   0.7851   0.0278   0.0000   0.0000  main_wing (YDUP)
-   3    20.745     2.849   0.2594   0.0199   0.0000   0.0000  horizontal_stabilizer
-   4    20.745     2.849   0.2594   0.0199   0.0000   0.0000  horizontal_stabilizer (YDUP)
-=======
    1    63.969     3.715   0.7922   0.0271   0.0000   0.0000  main_wing
    2    63.969     3.715   0.7922   0.0271   0.0000   0.0000  main_wing (YDUP)
    3    20.745     2.849   0.2575   0.0198   0.0000   0.0000  horizontal_stabilizer
    4    20.745     2.849   0.2575   0.0198   0.0000   0.0000  horizontal_stabilizer (YDUP)
->>>>>>> develop:regression/scripts/AVL/avl_files/surface_forces_case_0004_0005.txt
    5    34.910     4.191  -0.0000  -0.0000   0.0000   0.0000  vertical_stabilizer
    6   123.841    33.113   0.0108  -0.0002   0.0000   0.0000  fuselage_horizontal
    7   123.841    33.113  -0.0000   0.0000   0.0000   0.0000  fuselage_vertical

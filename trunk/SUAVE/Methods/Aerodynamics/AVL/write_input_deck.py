@@ -90,10 +90,6 @@ x
 {7}
 {8}
 {9}
-<<<<<<< HEAD
-''' 
-    # if trim analysis is specified, this function writes the trim commands 
-=======
 {10}
 {11}
 {12}
@@ -101,16 +97,12 @@ x
     
     # if trim analysis is specified, this function writes the trim commands else it 
     # uses the defined deflection of the control surfaces of the aircraft
->>>>>>> develop
     if trim_aircraft:
         trim_command       = make_trim_text_command(case)
         beta_command       = make_beta_text_command(case)
         roll_rate_command  = make_roll_rate_text_command(case)
         pitch_rate_command = make_pitch_rate_text_command(case)
     else:
-<<<<<<< HEAD
-        trim_command = ''
-=======
         roll_rate_command  = ''
         pitch_rate_command = ''
         beta_command       = ''
@@ -118,7 +110,6 @@ x
             trim_command = control_surface_deflection_command(case,avl_object)
         else: 
             trim_command = ''
->>>>>>> develop
     
     index          = case.index
     case_tag       = case.tag
@@ -291,11 +282,7 @@ D{1}
     cs_commands = ''
     for wing in aircraft.wings:
         for ctrl_surf in wing.control_surfaces:
-<<<<<<< HEAD
-            cs_command = cs_template.format(cs_idx,cs_idx,wing.control_surfaces[ctrl_surf].deflection)
-=======
             cs_command = cs_template.format(cs_idx,cs_idx,round(ctrl_surf.deflection/Units.degrees,4))
->>>>>>> develop
             cs_commands = cs_commands + cs_command
             cs_idx += 1
     return cs_commands 

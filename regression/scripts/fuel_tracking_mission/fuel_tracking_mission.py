@@ -1,4 +1,4 @@
-# tut_mission_B737.py
+# fuel_tracking_mission.py
 # 
 # Created:  Aug 2014, SUAVE Team
 # Modified: Aug 2017, SUAVE Team
@@ -59,8 +59,10 @@ def main():
     results = mission.evaluate()
 
     plot_fuel_use(results)
+
+    check_results(results)
     
-    print_mission_breakdown(results, filename='B737_mission_breakdown.dat')
+    print_mission_breakdown(results, filename='fuel_mission_breakdown.dat')
 
     return
 
@@ -809,7 +811,7 @@ def mission_setup(analyses):
 
     # Base segment 
     base_segment = Segments.Segment()
-    #base_segment.state.conditions.weights.has_aditional_fuel = True
+
 
     # ------------------------------------------------------------------
     #   First Climb Segment: Constant Speed, Constant Rate
@@ -853,7 +855,7 @@ def mission_setup(analyses):
     segment.altitude_end   = 8.0   * Units.km
     segment.air_speed      = 190.0 * Units['m/s']
     segment.climb_rate     = 6.0   * Units['m/s']
-    #segment.conditions.weights.has_additional_fuel = True
+
 
     # Add to mission
     mission.append_segment(segment)
@@ -870,7 +872,7 @@ def mission_setup(analyses):
     segment.altitude_end = 10.668 * Units.km
     segment.air_speed    = 226.0  * Units['m/s']
     segment.climb_rate   = 3.0    * Units['m/s']
-    #segment.conditions.weights.has_additional_fuel = True
+
     # Add to mission
     mission.append_segment(segment)
 
@@ -885,7 +887,6 @@ def mission_setup(analyses):
 
     segment.air_speed  = 230.412 * Units['m/s']
     segment.distance   = 2490. * Units.nautical_miles
-    #segment.conditions.weights.has_additional_fuel = True
 
     # Add to mission
     mission.append_segment(segment)
@@ -902,7 +903,7 @@ def mission_setup(analyses):
     segment.altitude_end = 8.0   * Units.km
     segment.air_speed    = 220.0 * Units['m/s']
     segment.descent_rate = 4.5   * Units['m/s']
-    #segment.conditions.weights.has_additional_fuel = True
+
 
 
     # Add to mission
@@ -921,7 +922,6 @@ def mission_setup(analyses):
     segment.air_speed    = 195.0 * Units['m/s']
     segment.descent_rate = 5.0   * Units['m/s']
 
-    #segment.conditions.weights.has_additional_fuel = True
     
     # Add to mission
     mission.append_segment(segment)
@@ -943,7 +943,6 @@ def mission_setup(analyses):
     segment.air_speed    = 170.0 * Units['m/s']
     segment.descent_rate = 5.0   * Units['m/s']
     
-    #segment.conditions.weights.has_additional_fuel = True
     # Add to mission
     mission.append_segment(segment)
 
@@ -961,8 +960,6 @@ def mission_setup(analyses):
     segment.air_speed    = 150.0 * Units['m/s']
     segment.descent_rate = 5.0   * Units['m/s']
 
-    #segment.conditions.weights.has_additional_fuel = True
-    
     # Add to mission
     mission.append_segment(segment)
 
@@ -980,7 +977,6 @@ def mission_setup(analyses):
     segment.air_speed    = 145.0 * Units['m/s']
     segment.descent_rate = 3.0   * Units['m/s']
     
-    #segment.conditions.weights.has_additional_fuel = True
 
     # Append to mission
     mission.append_segment(segment)
@@ -1005,6 +1001,35 @@ def missions_setup(base_mission):
     missions.base = base_mission
 
     return missions  
+
+def check_results(results):
+    #checking the weight values at the final segement 
+
+    weights = results.segments[-1].conditions.weights
+
+
+    #stored weight values to check against results
+    total_mass                   = np.array([[62696.17099197],[62694.1442812 ],[62688.14554268],[62678.41600768],[62665.3481715],[62649.47228568],[62631.43866482],[62611.9962415 ],[62591.96729459],[62572.21788392],[62553.62354735],[62537.03040895],[62523.21294419],[62512.83097265],[62506.38959385],[62504.20634677]])
+
+    additional_fuel_mass         = np.array([[0.        ],[-0.12461497],[-0.4930136],[-1.08909512],[-1.88680789],[-2.85128804],[-3.94038315],[-5.10649456],[-6.29865758],[-7.46476899],[-8.55386411],[-9.51834425],[-10.31605702],[-10.91213854],[-11.28053717],[-11.40515214]])
+
+    fuel_mass                    = np.array([[0.        ],[-1.90209581],[-7.53243569],[-16.66588917],[-28.93601258],[-43.84741825],[-60.791944],[-79.06825591],[-97.9050398],[-116.48833907],[-133.99358051],[-149.62223877],[-162.64199076],[-172.42788078],[-178.50086095],[-180.55949306]])
+    
+    vehicle_mass_rate            = np.array([[0.27815313],[0.27831989],[0.27882236],[0.27966525],[0.28085064],[0.28237082],[0.2842007],[0.28629173],[0.28856873],[0.29093067],[0.29325566],[0.29540975],[0.29725833],[0.298679],[0.29957376],[0.29987931]])
+    
+    vehicle_fuel_rate            = np.array([[0.2610454],[0.26121216],[0.26171463],[0.26255752],[0.26374291],[0.26526309],[0.26709297],[0.269184],[0.271461],[0.27382294],[0.27614794],[0.27830202],[0.28015061],[0.28157127],[0.28246603],[0.28277158]])
+
+    vehicle_additional_fuel_rate = np.array([[0.01710773],[0.01710773],[0.01710773],[0.01710773],[0.01710773],[0.01710773],[0.01710773],[0.01710773],[0.01710773],[0.01710773],[0.01710773],[0.01710773],[0.01710773],[0.01710773],[0.01710773],[0.01710773]])
+
+    
+
+    final_weight_values = np.array([total_mass, additional_fuel_mass, fuel_mass, vehicle_mass_rate, vehicle_fuel_rate, vehicle_additional_fuel_rate])
+
+    results_final_weight_values = np.array([weights.total_mass, weights.additional_fuel_mass, weights.fuel_mass, weights.vehicle_mass_rate, weights.vehicle_fuel_rate, weights.vehicle_additional_fuel_rate])
+
+    error_val = final_weight_values - results_final_weight_values
+
+    assert(np.amax(error_val) < 1e-6)
 
 
 # This section is needed to actually run the various functions in the file

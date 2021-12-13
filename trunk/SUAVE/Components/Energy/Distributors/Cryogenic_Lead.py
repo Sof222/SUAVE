@@ -71,8 +71,8 @@ class Cryogenic_Lead(Energy_Component):
         # Calculate the optimum length to cross-sectional area ratio
         # Taken directly from McFee
 
-        sigTL = material.electrical_conductivity(cold_temp)
-        inte = integrate.quad(lambda T: self.Q_min(material,T,hot_temp,current)[0]*derivative(material.electrical_conductivity,T), cold_temp, hot_temp)[0]
+        sigTL    = material.electrical_conductivity(cold_temp)
+        inte     = integrate.quad(lambda T: self.Q_min(material,T,hot_temp,current)[0]*derivative(material.electrical_conductivity,T), cold_temp, hot_temp)[0]
         la_ratio = (sigTL * minimum_Q + inte)/(current**2)
 
         return la_ratio

@@ -55,6 +55,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
 
     if units.lower()=="imperial":
         imperial = True
+
     elif units.lower()=="si":
         SI = True
     else:
@@ -67,8 +68,8 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
     k1 = 1.727133242E-06                            # constant to airspeed conversion
     k2 = 0.2857142857                               # constant to airspeed conversion
 
-    TotalRange      = 0.
-    total_fuel      = 0.
+    TotalRange              = 0.
+    total_fuel              = 0.
     total_additional_fuel   = 0.
 
     i = 0
@@ -112,21 +113,24 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         # Aispeed conversion: KTAS to  KCAS
         atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
         atmo_data  = atmosphere.compute_values(0)
-        p0 = atmo_data.pressure
-        deltai = segment.conditions.freestream.pressure[0] / p0
-        deltaf = segment.conditions.freestream.pressure[-1]/ p0
+        p0         = atmo_data.pressure
+        deltai     = segment.conditions.freestream.pressure[0] / p0
+        deltaf     = segment.conditions.freestream.pressure[-1]/ p0
 
-        VEi = Mi*(340.294*np.sqrt(deltai))          #Equivalent airspeed [m/s]
-        QCPOi = deltai*((1.+ k1*VEi**2/deltai)**3.5-1.) #
-        VCi = np.sqrt(((QCPOi+1.)**k2-1.)/k1)       #Calibrated airspeed [m/s]
+        VEi     = Mi*(340.294*np.sqrt(deltai))          #Equivalent airspeed [m/s]
+        QCPOi   = deltai*((1.+ k1*VEi**2/deltai)**3.5-1.) #
+        VCi     = np.sqrt(((QCPOi+1.)**k2-1.)/k1)       #Calibrated airspeed [m/s]
+
         if imperial:
             KCASi = VCi / Units.knots                   #Calibrated airspeed [knots]
+
         elif SI:
             KCASi = VCi #Calibrated airspeed [m/s]
 
-        VEf = Mf*(340.294*np.sqrt(deltaf))          #Equivalent airspeed [m/s]
-        QCPOf = deltaf*((1.+ k1*VEf**2/deltaf)**3.5-1.)
-        VCf = np.sqrt(((QCPOf+1.)**k2-1.)/k1) #m/s  #Calibrated airspeed [m/s]
+        VEf     = Mf*(340.294*np.sqrt(deltaf))          #Equivalent airspeed [m/s]
+        QCPOf   = deltaf*((1.+ k1*VEf**2/deltaf)**3.5-1.)
+        VCf     = np.sqrt(((QCPOf+1.)**k2-1.)/k1) #m/s  #Calibrated airspeed [m/s]
+
         if imperial:
             KCASf = VCf / Units.knots                   #Calibrated airspeed [knots]
         elif SI:
@@ -137,13 +141,13 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
 
         # Additional fuel weight differences
         ALT_FUEL    = WCi - WCf
-        FUEL_A  = WFi - WFf
+        FUEL_MAIN  = WFi - WFf
 
         # Only show additional fuel if used
         # Strings for when there is no additional fuel 
         add_fuel_data = ""
         add_fuel_unit = ""
-        add_fuel_str     = ""
+        add_fuel_str  = ""
 
         # Test if additional fuel data exists
         if segment.conditions.weights.has_additional_fuel:
@@ -151,28 +155,29 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
             # Modify header strings
             add_fuel_data = " ADDITIONAL FUEL "
             add_fuel_unit = "   kg    "
-            # Data for cyrogen column
-            add_fuel_str =  str('%8.2f'   % ALT_FUEL)     + '|'
+
+            # Data for additional fuel column
+            add_fuel_str  =  str('%8.2f'   % ALT_FUEL)     + '|'
             
             # Replace total mass difference with the fuel mass difference
-            Fuel = FUEL_A
-            Fuel_str=   str('%8.2f'   % Fuel)     + '|'
+            Fuel = FUEL_MAIN
+            Fuel_str   =   str('%8.2f'   % Fuel)     + '|'
 
 
         # String formatting
-        CLf_str =   str('%15.3f'   % CLf)     + '|'
-        CLi_str =   str('%15.3f'   % CLi)     + '|'
-        HPf_str =   str('%7.0f'    % HPf)     + '|'
-        HPi_str =   str('%7.0f'    % HPi)     + '|'
-        Dist_str =  str('%9.0f'    % Dist)    + '|'
-        Wf_str =    str('%8.0f'    % Wf)      + '|'
-        Wi_str =    str('%8.0f'    % Wi)      + '|'
-        T_str =     str('%7.1f'   % (Tf-Ti))  + '|'
-        Mi_str =    str('%7.3f'   % Mi)       + '|'
-        Mf_str =    str('%7.3f'   % Mf)       + '|'
-        KCASi_str = str('%7.1f'   % KCASi)    + '|'
-        KCASf_str = str('%7.1f'   % KCASf)    + '|'
-        Fuel_str=   str('%8.2f'   % Fuel)     + '|'
+        CLf_str     =  str('%15.3f'   % CLf)     + '|'
+        CLi_str     =  str('%15.3f'   % CLi)     + '|'
+        HPf_str     =  str('%7.0f'    % HPf)     + '|'
+        HPi_str     =  str('%7.0f'    % HPi)     + '|'
+        Dist_str    =  str('%9.0f'    % Dist)    + '|'
+        Wf_str      =  str('%8.0f'    % Wf)      + '|'
+        Wi_str      =  str('%8.0f'    % Wi)      + '|'
+        T_str       =  str('%7.1f'    % (Tf-Ti)) + '|'
+        Mi_str      =  str('%7.3f'    % Mi)      + '|'
+        Mf_str      =  str('%7.3f'    % Mf)      + '|'
+        KCASi_str   =  str('%7.1f'    % KCASi)   + '|'
+        KCASf_str   =  str('%7.1f'    % KCASf)   + '|'
+        Fuel_str    =  str('%8.2f'    % Fuel)    + '|'
 
         Segment_str = '%- 31s |' % key 
 
@@ -193,7 +198,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         fid.write( Segment_str+HPi_str+HPf_str+Wi_str+Wf_str+Dist_str+T_str+KCASi_str+KCASf_str+Mi_str+Mf_str+Fuel_str+add_fuel_str+'\n')
         
         # Sum fuel and additional fuel usage for printing summary once mission complete
-        total_fuel      = total_fuel + FUEL_A + ALT_FUEL
+        total_fuel              = total_fuel + FUEL_MAIN + ALT_FUEL
         total_additional_fuel   = total_additional_fuel + ALT_FUEL
         
         i = i+1
@@ -213,14 +218,16 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
     elif SI:
         fid.write(' Total Range         (km) ........... ' + str('%9.0f' % TotalRange) + '\n')
 
-    fid.write(' Total Fuel          (kg) ........... '+ str(TotalFuel)+'\n')
+    fid.write(' Total Main Fuel          (kg) ........... '+ str(TotalFuel)+'\n')
     
     # additional fuel use results
     if results.segments[0].conditions.weights.has_additional_fuel:
         fid.write(' Total Additional Fuel       (kg) ........... '+ str(total_additional_fuel)+'\n')
+        fid.write(' Total Fuel                  (kg) ........... '+ str(total_additional_fuel + TotalFuel)+'\n')
 
 
     fid.write(' Total Time  (hh:mm) ........ '+ time.strftime('    %H:%M', time.gmtime(TotalTime))+'\n')
+
     # Print timestamp
     fid.write(2*'\n'+ 43*'-'+ '\n' + datetime.datetime.now().strftime(" %A, %d. %B %Y %I:%M:%S %p"))
     

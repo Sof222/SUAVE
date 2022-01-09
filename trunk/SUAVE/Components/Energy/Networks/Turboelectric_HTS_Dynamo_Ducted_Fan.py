@@ -136,10 +136,10 @@ class Turboelectric_HTS_Dynamo_Ducted_Fan(Network):
             skin_temp[:]    = rotor_surface_temp 
 
         # If the rotor current is to be varied depending on the motor power here is the place to do it. For now the rotor current is set as constant.
-        #rotor_current       = np.full_like(motor_power_in, 1050)
-        rotor_current= np.linspace(1, 1750, num = len(motor_power_in))
+        #rotor_current       = np.full_like(motor_power_in, 800)
+        rotor_current       = np.linspace(1, 1500, num = len(motor_power_in))
         rotor_current       = rotor_current.reshape(len(motor_power_in),1)
-        print("rotor fill = ", rotor_current)
+        #print("rotor fill = ", rotor_current)
 
         # Calculate the power that must be supplied to the rotor. This also calculates the cryo load per rotor and stores this value as rotor.outputs.cryo_load
         single_rotor_power  = rotor.power(rotor_current, skin_temp)

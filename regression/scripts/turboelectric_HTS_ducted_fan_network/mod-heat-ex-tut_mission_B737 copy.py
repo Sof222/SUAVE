@@ -60,6 +60,8 @@ def main():
 
     plot_fuel_use(results)
 
+    plot_fuel_use_animated(results)
+
     #plot_fuel_use_animated(results)
     
     #print_mission_breakdown(results,filename='B737_mission_breakdown.dat')

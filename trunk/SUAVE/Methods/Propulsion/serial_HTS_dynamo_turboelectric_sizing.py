@@ -234,6 +234,7 @@ def serial_HTS_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan, 
     dynamo_input_power          = dynamo_powers[0]
     hts_dynamo_cooling_power    = dynamo_powers[1]
     dynamo_esc_input_power      = dynamo_esc.power_in(hts_dynamo, dynamo_input_power, HTS_current)
+    
     # Rename dynamo cooling requirement as lead cooling requirement in order to limit code changes compared to non-dynamo powertrain model
     leads_cooling_power         = hts_dynamo_cooling_power
     ccs_input_power             = dynamo_esc_input_power

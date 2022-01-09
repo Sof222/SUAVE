@@ -47,10 +47,10 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
             None
             """         
         
-        self.efficiency             =   0.1
+        self.efficiency             =   0.16
         self.mass_properties.mass   = 100.0     # [kg]
-        self.rated_current          = 1000.0     # [A]
-        self.rated_RPM              = 100.0     # [RPM]
+        self.rated_current          = 800.0     # [A]
+        self.rated_RPM              = 120.0     # [RPM]
         self.rated_temp             =  77.0     # [K]
     
     def shaft_power(self, cryo_temp, hts_current, power_out):
@@ -84,7 +84,12 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
         #Adjust efficiency according to the rotor current 
         efficiency = self.efficiency_curve(hts_current)
 
+        #print("efficiency = ", efficiency)
+
         plt.plot(hts_current, efficiency)
+        plt.ylabel('Dynamo Efficiency (W/W)')
+        plt.xlabel('Current (A)')
+
 
         #print("efficiency = ", efficiency, ", current = ", hts_current)
 
@@ -113,6 +118,7 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
 
             # In this basic model, assume dynamo is operating at the rated efficiency.
             power_in[index] = power/efficiency[index]
+
 
             # Calculate the dynamo losses. This loss will directly heat the cryogenic environment.
             cryo_load[index] = power_in[index] - power
@@ -145,4 +151,4 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
         a = ( self.efficiency ) / np.square(self.rated_current) #one point on the graph is assumed to be  (0, 2 * current), 0  = a (current ^ 2) + efficiency 
         
         return   -a * (np.square( x - self.rated_current) ) +  self.efficiency # y = a(x - current)^2 + efficieny 
-            
+

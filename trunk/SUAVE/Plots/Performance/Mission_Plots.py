@@ -305,7 +305,7 @@ def plot_fuel_use_animated(results, line_color = 'bo-', save_figure = False, sav
     def buildmebarchart(i):
         plt.legend(df.columns)
         p = plt.plot(df[:i].index, df[:i].values, 'o') #note it only returns the dataset, up to the point i
-        print("time , " , df[:i].index)
+
         for i in range(0,3):
             p[i].set_color(color[i]) #set the colour of each curve
 
@@ -319,7 +319,7 @@ def plot_fuel_use_animated(results, line_color = 'bo-', save_figure = False, sav
 
     ani = animation.FuncAnimation(fig, buildmebarchart,interval=100, repeat=True, frames=300)
 
-    f = r"C:\Users\sofie\OneDrive - Victoria University of Wellington - STAFF\Desktop\SUAVE - GIT\SUAVE\regression\scripts\turboelectric_HTS_ducted_fan_network\fuel.mp4"
+    f = r"C:\Users\sofie\OneDrive - Victoria University of Wellington - STAFF\Desktop\SUAVE - GIT\SUAVE\regression\scripts\turboelectric_HTS_ducted_fan_network\fuel-funny.mp4" 
 
     #ani.save('filename.mp4')
     #writervideo = animation.FFMpegWriter(fps=5)

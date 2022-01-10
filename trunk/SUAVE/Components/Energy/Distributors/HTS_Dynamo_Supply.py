@@ -66,10 +66,10 @@ class HTS_Dynamo_Supply(Energy_Component):
         """
         # Unpack
         rated_RPM   = self.rated_RPM
-
         
         #Adjust efficiency according to the rotor current 
         efficiency = dynamo.efficiency_curve(hts_current)
+        
 
         # Assume rated RPM is no RPM value supplied
         if RPM == None:
@@ -79,7 +79,7 @@ class HTS_Dynamo_Supply(Energy_Component):
         power_in    = np.zeros_like(power_out)
 
         # Apply the efficiency of the current supply to get the total power required at the input of the current supply. For more precise results efficiency could be adjusted based on RPM.
-        power_in                = power_out/efficiency
+        power_in    = power_out/efficiency
 
         # Return basic result.
         return power_in
@@ -101,7 +101,6 @@ class HTS_Dynamo_Supply(Energy_Component):
 
         Outputs:
         mass                [kg]
-
         """
 
         # unpack

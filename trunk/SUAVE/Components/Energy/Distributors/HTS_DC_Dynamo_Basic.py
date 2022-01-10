@@ -148,6 +148,11 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
         None
         """     
 
+        x = np.array(x)
+
+        if np.any(x > self.rated_current * 1.8 ) or np.any(x < self.rated_current * 0.2): #Plus minus 80
+            print("out of bounds")
+
         a = ( self.efficiency ) / np.square(self.rated_current) #one point on the graph is assumed to be  (0, 2 * current), 0  = a (current ^ 2) + efficiency 
         
         return   -a * (np.square( x - self.rated_current) ) +  self.efficiency # y = a(x - current)^2 + efficieny 

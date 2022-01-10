@@ -60,7 +60,7 @@ def main():
 
     plot_fuel_use(results)
 
-    plot_fuel_use_animated(results)
+    #plot_fuel_use_animated(results)
 
     #plot_fuel_use_animated(results)
     

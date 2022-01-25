@@ -196,6 +196,8 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
                 current_fuel = np.add(fuel, prev_seg_fuel)
                 current_alt_fuel = np.add(alt_fuel, prev_seg_extra_fuel)
 
+                print("current fuel = ", current_fuel)
+
                 axes.plot( time , np.negative(current_fuel)  , 'ro-' )
                 axes.plot( time , np.negative(current_alt_fuel ), 'bo-')
                 axes.plot( time , np.negative(current_fuel + current_alt_fuel), 'go-')
@@ -211,6 +213,8 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
                 total_fuel  = np.negative(segment.conditions.weights.total_mass[:,0] - initial_weight )
                 axes.plot( time, total_fuel, 'mo-')
 
+ 
+
     axes.set_ylabel('Fuel (kg)',axis_font)
     axes.set_xlabel('Time (min)',axis_font)
 
@@ -224,7 +228,70 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
         
     return
 
-    
+def plot_fuel_use_test(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Fuel_Burnt-pp", file_type = ".png"):
+    """This plots aircraft fuel usage
+    Assumptions:
+    None
+    Source:
+    None
+    Inputs:
+    results.segments.condtions.
+        frames.inertial.time
+        weights.fuel_mass
+        weights.additional_fuel_mass
+        weights.total_mass
+    Outputs: 
+    Plots
+    Properties Used:
+    N/A	"""
+
+
+    print("ruuning")
+    axis_font = {'size':'14'}  
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(10, 8) 
+
+    axes = plt.subplot(1,1,1)
+
+    alt_fuel_values = np.array(results.segments[0].conditions.weights.additional_fuel_mass[:,0])
+    fuel_values =  np.array(results.segments[0].conditions.weights.fuel_mass[:,0])
+    time     = results.segments[0].conditions.frames.inertial.time[:,0] / Units.min
+
+    t, av, fv =  recursice_fuel_use_loop(results, fuel_values, alt_fuel_values, 1, time)
+
+    print(fv)
+
+    axes.plot( t , fv  , 'ro-' )
+    axes.plot( t , av, 'bo-')
+    axes.plot( t , np.add(fv, av) , 'go-')
+
+    axes.set_ylabel('Fuel (kg)',axis_font)
+    axes.set_xlabel('Time (min)',axis_font)
+
+    set_axes(axes)
+
+    plt.show()
+
+    return
+
+def recursice_fuel_use_loop(results, fuel_array, additional_fuel_array, finish, time ):
+
+    if finish <  len(results.segments) : 
+
+        fuel     = np.add(results.segments[finish].conditions.weights.fuel_mass[:,0] , fuel_array[-1])
+        alt_fuel = np.add(results.segments[finish].conditions.weights.additional_fuel_mass[:,0] , additional_fuel_array[-1])
+
+        time = np.append(time, results.segments[finish].conditions.frames.inertial.time[:,0] / Units.min )
+
+        finish += 1
+
+        fuel_array = np.append(fuel_array, fuel)
+        additional_fuel_array = np.append(additional_fuel_array, alt_fuel)
+        
+        return recursice_fuel_use_loop(results, fuel_array, additional_fuel_array, finish, time)
+
+    return time, np.negative(additional_fuel_array), np.negative(fuel_array)
+
 # ------------------------------------------------------------------
 #   Plot Fuel Use
 # ------------------------------------------------------------------

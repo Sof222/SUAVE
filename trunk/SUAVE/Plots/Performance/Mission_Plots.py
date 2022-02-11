@@ -183,9 +183,9 @@ def plot_fuel_use(results, line_color = 'bo-', save_figure = False, save_filenam
                 plot_fuel = np.negative(fuel)
                 plot_alt_fuel = np.negative(alt_fuel)
 
-                axes.plot( time , plot_fuel , 'ro-' , label = 'fuel')
-                axes.plot( time , plot_alt_fuel , 'bo-', label = 'additional fuel' )
-                axes.plot( time , np.add(plot_fuel, plot_alt_fuel), 'go-', label = 'total fuel' )
+                axes.plot( time , plot_fuel , 'ro-' , label = 'Fuel')
+                axes.plot( time , plot_alt_fuel , 'bo-', label = 'Cyogenic Fuel' )
+                axes.plot( time , np.add(plot_fuel, plot_alt_fuel), 'go-', label = 'Total Fuel' )
 
                 axes.legend(loc='center right')   
 
@@ -350,9 +350,9 @@ def plot_fuel_use_animated(results, line_color = 'bo-', save_figure = False, sav
     total_fuel = [sum(i) for i in zip(fuel_values, alt_fuel_values )]  
 
 
-    data = {'Alt Fuel': alt_fuel_values,
-            'Fuel': fuel_values,
-            'Total': total_fuel}
+    data = {'Cryogenic Fuel': alt_fuel_values,
+            'Standard Fuel': fuel_values,
+            'Total Fuel': total_fuel}
 
     df = pd.DataFrame(data, index=time_values)
 
@@ -384,13 +384,13 @@ def plot_fuel_use_animated(results, line_color = 'bo-', save_figure = False, sav
 
     mpl.rcParams['animation.ffmpeg_path'] = r'C:\Users\sofie\ffmpeg-4.4.1-essentials_build\ffmpeg-4.4.1-essentials_build\bin\ffmpeg.exe'
 
-    ani = animation.FuncAnimation(fig, buildmebarchart,interval=100, repeat=True, frames=300)
+    ani = animation.FuncAnimation(fig, buildmebarchart,interval=100, repeat=True, frames=150)
 
     f = r"C:\Users\sofie\OneDrive - Victoria University of Wellington - STAFF\Desktop\SUAVE - GIT\SUAVE\regression\scripts\turboelectric_HTS_ducted_fan_network\fuel-funny.mp4" 
 
     #ani.save('filename.mp4')
-    #writervideo = animation.FFMpegWriter(fps=5)
-    #ani.save(f, writer=writervideo)
+    writervideo = animation.FFMpegWriter(fps=10)
+    ani.save(f, writer=writervideo)
     print("Finished saving!")
 
     plt.show()

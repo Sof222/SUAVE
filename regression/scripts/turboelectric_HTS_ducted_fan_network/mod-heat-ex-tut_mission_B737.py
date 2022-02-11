@@ -58,11 +58,11 @@ def main():
     
     results = mission.evaluate()
 
-    plot_fuel_use(results)
+    #plot_fuel_use(results)
 
-    #plot_fuel_use_animated(results)
+    plot_fuel_use_animated(results)
     
-    plot_fuel_use_test(results)
+    #plot_fuel_use_test(results)
     #print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
 
     return

@@ -137,6 +137,8 @@ class Cryogenic_Lead(Energy_Component):
 
         
         values = [calc_current(self,x) for x in current]
+
+        print("values = ", values)
         
     
         return np.array(values)

@@ -34,9 +34,10 @@ import sys, os, traceback, time
 #   The Modules to Test
 # ----------------------------------------------------------------------
 
-modules = [
+modules1 = [
 
     # ----------------------- Regression List --------------------------
+    'scripts/segments/segment_test.py',
     'scripts/aerodynamics/aerodynamics.py',
     'scripts/aerodynamics/all_moving_surfaces_vlm.py',
     'scripts/aerodynamics/control_surfaces_vlm.py',
@@ -114,6 +115,9 @@ modules = [
     
 ]
 
+modules = [
+    'scripts/segments/segment_test.py'
+]
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------

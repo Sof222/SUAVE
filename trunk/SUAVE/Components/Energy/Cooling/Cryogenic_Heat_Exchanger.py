@@ -59,6 +59,8 @@ class Cryogenic_Heat_Exchanger(Energy_Component):
         self.cryogen_is_fuel                =      0.0      # Proportion of cryogen that is burned as fuel. Assumes the cryogen is the same as the fuel, e.g. that both are hydrogen.
     
     def energy_calc(self,cooling_power, conditions):
+
+        
         """ This calculates the mass of cryogen required to achieve the desired cooling power given the temperature of the cryogen supplied, and the desired temperature of the cryogenic equipment.
 
         Assumptions:

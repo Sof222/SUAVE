@@ -84,7 +84,12 @@ class Motor_HTS_Rotor(Energy_Component):
             resistance      [ohm]
             surface_area    [m2]
             R_value         [K.m2/W]
+
         """
+
+        
+
+
         # unpack
         cryo_temp       = self.temperature
         coil_R          = self.resistance

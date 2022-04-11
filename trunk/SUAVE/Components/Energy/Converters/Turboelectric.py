@@ -62,6 +62,7 @@ class Turboelectric(Energy_Component):
     def energy_calc(self,conditions,numerics):
         """This calls the assigned discharge method.
 
+
         Assumptions:
         None
 
@@ -76,8 +77,9 @@ class Turboelectric(Energy_Component):
 
         Properties Used:
         self.discharge_model(self, conditions, numerics)
-        """           
-        
+        """   
+
+
         mdot = self.discharge_model(self, conditions, numerics)
         return mdot  
 

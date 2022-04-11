@@ -146,6 +146,7 @@ class Aerodynamics(Basic):
         # energy conditions
         self.energies.gravity_energy       = ones_1col * 0
         self.energies.propulsion_power     = ones_1col * 0
+        self.energies.rotor_current        = ones_1col * 0
         
         # weights conditions
         self.weights.vehicle_mass_rate                = ones_1col * 0

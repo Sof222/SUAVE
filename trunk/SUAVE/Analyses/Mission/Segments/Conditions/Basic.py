@@ -85,3 +85,4 @@ class Basic(Conditions):
         # energy conditions
         self.energies.total_energy         = ones_1col * 0
         self.energies.total_efficiency     = ones_1col * 0
+    

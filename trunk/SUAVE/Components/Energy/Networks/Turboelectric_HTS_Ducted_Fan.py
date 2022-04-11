@@ -142,11 +142,9 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         # Calculate the power loss in the rotor current supply leads.
         # The cryogenic loading due to the leads is also calculated here.
 
-        lead_power      =  np.where(rotor_currents[:,0] > 0, lead.Q_offdesign(rotor_currents[:,0])[:,1], 0.0 )
-        lead_cryo_load  =  np.where(rotor_currents[:,0] > 0,  lead.Q_offdesign(rotor_currents[:,0])[:,0], lead.unpowered_Q )
+        lead_power      =  lead.Q_offdesign(conditions)[:,1]
+        lead_cryo_load  =  lead.Q_offdesign(conditions)[:,0]
 
-        lead_power      = np.reshape(lead_power, (len(lead_power),1))
-        lead_cryo_load  = np.reshape(lead_cryo_load, (len(lead_power),1))
 
         # Multiply the lead powers by the number of leads, this is typically twice the number of motors
         lead_power          = lead_power * leads

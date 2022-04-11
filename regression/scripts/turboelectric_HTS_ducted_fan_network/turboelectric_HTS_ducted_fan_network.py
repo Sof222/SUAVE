@@ -223,7 +223,7 @@ def energy_network():
     # setup
     fan.polytropic_efficiency = 0.93
     fan.pressure_ratio        = 1.7    
-    
+
     # add to network
     efan.ducted_fan.append(fan)
 
@@ -298,6 +298,7 @@ def energy_network():
     efan.rotor.surface_area             = 2.0 * rotor_end_area + efan.rotor.length*rotor_end_circumference
     efan.rotor.R_value                  =   125.0                           # [K.m2/W]  2.0 W/m2 based on experience at Robinson Research
 
+    conditions_sizing.energies.rotor_current  = np.atleast_1d([efan.rotor.current])   
     # ------------------------------------------------------------------
     #  Component 6 - Copper Supply Leads of propulsion motor rotors
     
@@ -373,6 +374,12 @@ def energy_network():
     expected.mdot_fuel              = 0.79080567
     expected.mdot_additional_fuel   = 0.01710773
     
+    print("thrust = ", F[0][0] )
+    print("mdot= ", mdot[0][0] )
+    print("mdot f = ", mdot_fuel[0][0] )
+    print("mdot f a = ", mdot_additional_fuel[0][0] )
+
+
     #error data function
     error =  Data()
     error.thrust_error                  = (F[0][0] -  expected.thrust)/expected.thrust

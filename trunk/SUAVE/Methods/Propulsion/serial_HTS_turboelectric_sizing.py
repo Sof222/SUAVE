@@ -100,6 +100,7 @@ def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
             conditions.freestream.speed_of_sound              = np.atleast_1d(a)
             conditions.freestream.velocity                    = conditions.freestream.mach_number*conditions.freestream.speed_of_sound
             
+            conditions.energies.rotor_current                 = np.atleast_1d([rotor.current])    
             # propulsion conditions
             conditions.propulsion.throttle           =  np.atleast_1d(1.0)
     
@@ -158,8 +159,8 @@ def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     thrust.inputs.core_nozzle                              = Data()
     thrust.inputs.core_nozzle.velocity                     = 0.
     thrust.inputs.core_nozzle.area_ratio                   = 0.
-    thrust.inputs.core_nozzle.static_pressure              = 0.      
-                                                                                                              
+    thrust.inputs.core_nozzle.static_pressure              = 0.        
+
     # compute the thrust
     thrust.size(conditions) 
     mass_flow  = thrust.mass_flow_rate_design
@@ -201,6 +202,7 @@ def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     conditions_sls.freestream.speed_of_sound              = np.atleast_1d(a)
     conditions_sls.freestream.velocity                    = conditions_sls.freestream.mach_number * conditions_sls.freestream.speed_of_sound
     
+    conditions_sls.energies.rotor_current                 = np.atleast_1d([rotor.current])    
     # propulsion conditions
     conditions_sls.propulsion.throttle           =  np.atleast_1d(1.0)    
     
@@ -231,15 +233,15 @@ def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     rotor_input_power           = rotor.power(HTS_current, rotor.skin_temp)
     
     # initialize copper lead optimses the leads for the conditions set elsewhere, i.e. the lead is not sized here as it should be sized for the maximum ambient temperature
-    current_lead.initialize_material_lead()
-    current_lead_powers         = current_lead.Q_offdesign(HTS_current)
-    lead_power                  = current_lead_powers[0,1]
+    current_lead.initialize_material_lead(conditions)
+    current_lead_powers         = current_lead.Q_offdesign(conditions)
+    lead_power                  = current_lead_powers[0][1]
     leads_power                 = 2 * lead_power             # multiply lead loss by number of leads to get total loss
     ccs_output_power            = leads_power + rotor_input_power
     ccs_input_power             = ccs.power(HTS_current, ccs_output_power)
 
     # The cryogenic components are also part of the rotor power stream
-    lead_cooling_power          = current_lead_powers[0,0]
+    lead_cooling_power          = current_lead_powers[0][0]
     leads_cooling_power         = 2 * lead_cooling_power   # multiply lead cooling requirement by number of leads to get total cooling requirement
     total_lead_cooling_power    = leads_cooling_power * number_of_engines
     rotor_cooling_power         = rotor.outputs.cryo_load
@@ -268,3 +270,8 @@ def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     ccs.rated_power             = ccs_output_power
     ccs.rated_current           = HTS_current
     turboelectric.rated_power   = turboelectric_output_power
+
+
+
+
+

@@ -236,15 +236,15 @@ def energy_network():
     # To compute the thrust
     thrust     = SUAVE.Components.Energy.Processes.Thrust()       
     thrust.tag ='compute_thrust'
- 
+
     # total design thrust (includes all the propulsors)
     thrust.total_design             = 2.*24000. * Units.N #Newtons
- 
+
     # design sizing conditions
     altitude      = 35000.0*Units.ft
     mach_number   =     0.78 
     isa_deviation =     0.
-    
+
     # add to network
     efan.ducted_fan.thrust = thrust
     # ------------------------------------------------------------------

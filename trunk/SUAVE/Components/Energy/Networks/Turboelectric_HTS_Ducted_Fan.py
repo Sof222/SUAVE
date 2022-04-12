@@ -109,6 +109,7 @@ class Turboelectric_HTS_Ducted_Fan(Network):
         cryogen_is_fuel             = self.heat_exchanger.cryogen_is_fuel   # Proportion of the cryogen used as fuel.
     
         conditions      = state.conditions
+        conditions.energies.rotor_current = np.full_like(conditions.energies.rotor_current, rotor.current)
         numerics        = state.numerics
 
         amb_temp        = conditions.freestream.temperature

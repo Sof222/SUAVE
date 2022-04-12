@@ -233,8 +233,9 @@ def serial_HTS_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     rotor_input_power           = rotor.power(HTS_current, rotor.skin_temp)
     
     # initialize copper lead optimses the leads for the conditions set elsewhere, i.e. the lead is not sized here as it should be sized for the maximum ambient temperature
-    current_lead.initialize_material_lead(conditions)
-    current_lead_powers         = current_lead.Q_offdesign(conditions)
+    
+    current_lead.initialize_material_lead(conditions_sls)
+    current_lead_powers         = current_lead.Q_offdesign(conditions_sls)
     lead_power                  = current_lead_powers[0][1]
     leads_power                 = 2 * lead_power             # multiply lead loss by number of leads to get total loss
     ccs_output_power            = leads_power + rotor_input_power

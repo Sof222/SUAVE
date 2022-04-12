@@ -42,8 +42,10 @@ class HTS_DC_Supply(Energy_Component):
         self.efficiency         =   0.0
         self.rated_current      = 100.0     # [A]
         self.rated_power        = 100.0     # [W]
+        self.inputs.power_out          = 0.0       # [W]
+        self.outputs.power_in          = 0.0       # [W]
     
-    def power(self, current, power_out):
+    def power(self, conditions):
         """ The power that must be supplied to the DC supply to power the HTS coils.
 
             Assumptions:
@@ -64,6 +66,7 @@ class HTS_DC_Supply(Energy_Component):
 
         """
         # Unpack
+        power_out               = self.inputs.power_out
         efficiency              = self.efficiency
 
         # Apply the efficiency of the current supply to get the total power required at the input of the current supply.
@@ -71,4 +74,6 @@ class HTS_DC_Supply(Energy_Component):
 
 
         # Return basic result.
+        self.outputs.power_in = power_in
+
         return power_in

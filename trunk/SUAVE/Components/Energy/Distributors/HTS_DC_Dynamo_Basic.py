@@ -48,13 +48,18 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
             None
             """         
         
-        self.efficiency             =   0.0      # [W/W]
+        self.outputs.efficiency             =   0.0      # [W/W]
         self.mass_properties.mass   =   0.0      # [kg] 
-        self.rated_current          =   0.0      # [A]
-        self.rated_RPM              =   0.0      # [RPM]
-        self.rated_temp             =   0.0      # [K]
+        self.rated_current           =   0.0      # [A]
+        self.rated_RPM               =   0.0      # [RPM]
+        self.rated_temp              =   0.0      # [K]
+        self.inputs.hts_current             =   0.0      # [A]
+        self.inputs.power_out               =   0.0      # [W]
+        self.outputs.cryo_load              =   0.0      # [W]
+        self.outputs.power_in               =   0.0      # [W]
+
     
-    def shaft_power(self, cryo_temp, hts_current, power_out):
+    def shaft_power(self, conditions):
         """ The shaft power that must be supplied to the DC Dynamo supply to power the HTS coils.
             Assumptions:
                 HTS Dynamo is operating at rated temperature.
@@ -75,6 +80,9 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
                 None
         """
 
+        hts_current = self.inputs.hts_current 
+
+        power_out   = self.inputs.power_out 
 
         #Adjust efficiency according to the rotor current 
         current    = np.array(hts_current)
@@ -88,6 +96,10 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
         cryo_load  = np.array(power_in - power_out)
 
         # Return basic results.
+
+        self.outputs.cryo_load              =   cryo_load
+        self.outputs.power_in               =   power_in
+
         return [power_in, cryo_load]
 
 

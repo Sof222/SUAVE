@@ -46,8 +46,15 @@ class HTS_Dynamo_Supply(Energy_Component):
         self.efficiency             =    0.0
         self.mass_properties.mass   =    0.0    # [kg]
         self.rated_RPM              =    0.0    # [RPM]
+        self.inputs.dynamo                 =    None
+        self.inputs.power_out              =    0.0    #[W]
+        self.inputs.hts_current            =    0.0    #[A]
+        self.inputs.RPM                    =    0.0
+        self.outputs.power_in              =    0.0    
+
+
     
-    def power_in(self, dynamo, power_out, hts_current, RPM=None):
+    def power_in(self, conditions):
         """ The power supplied to this component based on that this must deliver to the HTS dynamo as shaft power.
 
             Assumptions:
@@ -68,15 +75,18 @@ class HTS_Dynamo_Supply(Energy_Component):
                 None
         """
         # Unpack
-        rated_RPM   = self.rated_RPM
+        RPM         = self.inputs.RPM
+        dynamo      = self.inputs.dynamo
+        hts_current = self.inputs.hts_current
+        power_out   = self.inputs.power_out
         
         #Adjust efficiency according to the rotor current 
         efficiency  = dynamo.efficiency_curve(hts_current)
         
 
         # Assume rated RPM is no RPM value supplied
-        if RPM == None:
-            RPM = rated_RPM
+        if RPM == 0.0:
+            RPM = self.rated_RPM 
 
         # Create output array
         power_in    = np.zeros_like(power_out)
@@ -85,6 +95,7 @@ class HTS_Dynamo_Supply(Energy_Component):
         power_in    = power_out/efficiency
 
         # Return basic result.
+        self.outputs.power_in = power_in
         return power_in
 
 

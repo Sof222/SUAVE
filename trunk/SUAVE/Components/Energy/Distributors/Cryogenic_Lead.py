@@ -135,10 +135,12 @@ class Cryogenic_Lead(Energy_Component):
         # Estimates the heat flow into the cryogenic environment when a current other than the current the lead was optimised for is flowing. Assumes the temperature difference remains constant.
         current = conditions.energies.rotor_current
 
+        #print("current = ", current)
+
         
         values = [calc_current(self,x) for x in current]
 
-        print("values = ", values)
+        #print("values = ", values)
         
     
         return np.array(values)
